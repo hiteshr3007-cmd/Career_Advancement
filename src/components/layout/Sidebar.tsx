@@ -116,7 +116,7 @@ export default function Sidebar() {
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-slate-800 bg-slate-900 text-slate-300">
       <div className="flex h-16 items-center px-6 border-b border-slate-800">
-        <span className="text-lg font-semibold text-white">Career Advance</span>
+        <span className="text-lg font-semibold text-white">Career Advancement</span>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">

@@ -1,3 +1,5 @@
+import DashboardView from "@/components/dashboard/DashboardView";
+
 export default function DashboardPage() {
-    return <h1>Dashboard</h1>;
-  }
+  return <DashboardView />;
+}
