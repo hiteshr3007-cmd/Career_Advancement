@@ -17,7 +17,7 @@ down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-EMBEDDING_DIM = 1536
+EMBEDDING_DIM = 384  # local HashingVectorizer output size, see app/services/matching/embeddings.py
 
 
 def upgrade() -> None:

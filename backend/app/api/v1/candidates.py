@@ -12,6 +12,7 @@ from app.models.candidate import (
     CandidateSkill,
 )
 from app.models.user import User, UserRole
+from app.services.candidate_profile import recompute_completeness
 from app.schemas.candidate import (
     CandidateProfileOut,
     CandidateProfileUpdate,
@@ -50,21 +51,6 @@ def _get_own_profile(db: Session, user: User) -> CandidateProfile:
     return profile
 
 
-def _recompute_completeness(profile: CandidateProfile) -> None:
-    fields = [
-        profile.phone,
-        profile.location,
-        profile.summary,
-        profile.current_designation,
-        profile.experience_level,
-        profile.industry,
-        bool(profile.skills),
-        bool(profile.education),
-        bool(profile.experiences),
-    ]
-    profile.profile_completeness = round(sum(1 for f in fields if f) / len(fields), 2)
-
-
 @router.get("/me", response_model=CandidateProfileOut)
 def get_my_profile(
     current_user: User = Depends(require_roles(UserRole.CANDIDATE.value)),
@@ -85,7 +71,7 @@ def update_my_profile(
         update_data["career_preferences"] = update_data["career_preferences"]
     for field, value in update_data.items():
         setattr(profile, field, value)
-    _recompute_completeness(profile)
+    recompute_completeness(profile)
     db.commit()
     db.refresh(profile)
     return profile
@@ -100,7 +86,7 @@ def add_skill(
     profile = _get_own_profile(db, current_user)
     skill = CandidateSkill(candidate_id=profile.id, source="manual", **payload.model_dump())
     db.add(skill)
-    _recompute_completeness(profile)
+    recompute_completeness(profile)
     db.commit()
     db.refresh(skill)
     return skill
@@ -132,7 +118,7 @@ def add_education(
     profile = _get_own_profile(db, current_user)
     entry = CandidateEducation(candidate_id=profile.id, **payload.model_dump())
     db.add(entry)
-    _recompute_completeness(profile)
+    recompute_completeness(profile)
     db.commit()
     db.refresh(entry)
     return entry
@@ -164,7 +150,7 @@ def add_experience(
     profile = _get_own_profile(db, current_user)
     entry = CandidateExperience(candidate_id=profile.id, **payload.model_dump())
     db.add(entry)
-    _recompute_completeness(profile)
+    recompute_completeness(profile)
     db.commit()
     db.refresh(entry)
     return entry

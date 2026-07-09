@@ -17,6 +17,7 @@ DATE_RANGE_RE = re.compile(
     r"(?P<start>[A-Za-z]{3,9}\.?\s?\d{4}|\d{4})\s*[-–—to]{1,4}\s*(?P<end>[A-Za-z]{3,9}\.?\s?\d{4}|\d{4}|present|current)",
     re.IGNORECASE,
 )
+TITLE_AT_COMPANY_RE = re.compile(r"^(?P<title>.+?)\s+at\s+(?P<company>.+)$", re.IGNORECASE)
 
 KNOWN_SKILLS = [
     "python", "java", "javascript", "typescript", "react", "react.js", "next.js", "node.js",
@@ -94,10 +95,20 @@ def _extract_experience_entries(experience_section: str | None) -> list[dict]:
         match = DATE_RANGE_RE.search(block)
         if not match:
             continue
-        first_line = block.strip().splitlines()[0] if block.strip() else ""
+        first_line = block.strip().splitlines()[0].strip() if block.strip() else ""
+
+        title = first_line
+        company = None
+        title_company_match = TITLE_AT_COMPANY_RE.match(first_line)
+        if title_company_match:
+            title = title_company_match.group("title").strip()
+            company = title_company_match.group("company").strip()
+
         entries.append(
             {
-                "title_line": first_line.strip(),
+                "title": title,
+                "company": company,
+                "title_line": first_line,
                 "start_raw": match.group("start"),
                 "end_raw": match.group("end"),
                 "is_current": match.group("end").lower() in {"present", "current"},
@@ -107,16 +118,40 @@ def _extract_experience_entries(experience_section: str | None) -> list[dict]:
     return entries
 
 
+DEGREE_KEYWORDS = ["bachelor", "master", "b.tech", "m.tech", "phd", "b.sc", "m.sc", "mba", "diploma"]
+INSTITUTION_KEYWORDS = ["university", "institute", "college", "school"]
+FIELD_OF_STUDY_RE = re.compile(r"\bin\s+(.+)", re.IGNORECASE)
+
+
 def _extract_education_entries(education_section: str | None) -> list[dict]:
     if not education_section:
         return []
     entries = []
     blocks = re.split(r"\n\s*\n", education_section)
-    degree_keywords = ["bachelor", "master", "b.tech", "m.tech", "phd", "b.sc", "m.sc", "mba", "diploma"]
     for block in blocks:
         lower = block.lower()
-        if any(keyword in lower for keyword in degree_keywords) or DATE_RANGE_RE.search(block):
-            entries.append({"raw_text": block.strip()})
+        if not (any(keyword in lower for keyword in DEGREE_KEYWORDS) or DATE_RANGE_RE.search(block)):
+            continue
+
+        degree = None
+        field_of_study = None
+        institution = None
+        for line in (l.strip() for l in block.strip().splitlines() if l.strip()):
+            line_lower = line.lower()
+            if degree is None and any(keyword in line_lower for keyword in DEGREE_KEYWORDS):
+                degree = line
+                match = FIELD_OF_STUDY_RE.search(line)
+                if match:
+                    field_of_study = match.group(1).strip()
+            elif institution is None and any(keyword in line_lower for keyword in INSTITUTION_KEYWORDS):
+                institution = line
+
+        entries.append({
+            "degree": degree,
+            "field_of_study": field_of_study,
+            "institution": institution,
+            "raw_text": block.strip(),
+        })
     return entries
 
 

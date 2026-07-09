@@ -8,7 +8,7 @@ and **Phase 2** (Candidate Profile Engine, Benchmark Repository, Matching Engine
 - FastAPI + SQLAlchemy 2.0 + Alembic
 - PostgreSQL + pgvector (embeddings for semantic matching, and resume file storage — see below)
 - JWT auth (access + refresh tokens)
-- OpenAI API (LLM resume-parsing fallback, embeddings)
+- Local/free resume parsing + embeddings (no OpenAI account needed — see below)
 
 Resume files are stored as blobs in Postgres (`stored_files` table) instead of
 S3 for now, since no AWS account is set up yet. The `S3StorageService` code is
@@ -16,10 +16,14 @@ kept commented out in [app/services/storage.py](app/services/storage.py) — to
 switch back later, uncomment it, point `storage_service` at an instance of it,
 and fill in the AWS env vars.
 
+Similarly, the OpenAI-based resume-parsing fallback and embeddings are
+disabled — no OpenAI account/credits required to run this. See "Resume
+parsing strategy" and "Matching engine" below for the local replacements and
+how to switch back to OpenAI later.
+
 ## Local setup
 
-1. Copy environment file and fill in secrets (OpenAI key is optional for
-   local dev — the app degrades gracefully without it):
+1. Copy environment file:
 
    ```
    cp .env.example .env
@@ -89,13 +93,15 @@ alembic/                 Migrations
 
 ## Resume parsing strategy
 
-`services/resume_parsing/parser.py` runs the fast regex/keyword-based parser first
-(`rules_parser.py`). If its confidence score is below `0.7` (missing name/email,
-too few skills, no experience or education section found), it falls back to an
-OpenAI structured-output extraction (`llm_parser.py`) and merges the two results,
-preferring LLM output only where the rules pass found nothing. If no `OPENAI_API_KEY`
-is configured, or the LLM call fails, the rules-only result is used — parsing never
-hard-fails because of missing AI credentials.
+`services/resume_parsing/parser.py` runs the fast regex/keyword-based parser
+(`rules_parser.py`) — extracts name/email/phone, skills, certifications,
+education, and experience from resume text with a confidence score. The LLM
+fallback (`llm_parser.py`) that used to catch low-confidence extractions via
+OpenAI is **disabled** (`parse_resume_with_llm` always raises
+`LLMParserUnavailable`, which `parser.py` already catches and falls back to
+the rules-only result) — zero cost, zero latency, no account needed. The full
+OpenAI implementation is kept commented out in that file for later
+re-enabling.
 
 ## Matching engine
 
@@ -108,13 +114,19 @@ hard-fails because of missing AI credentials.
 - Missing required/preferred skills, missing certs, experience shortfall →
   **Gap Summary**
 
-Embeddings are computed lazily (on first match compute / benchmark create) and
-cached on the row; matching still works with rule-based scores alone if
-`OPENAI_API_KEY` is absent (semantic similarity term is simply 0).
+Embeddings (`services/matching/embeddings.py`) are computed locally via
+scikit-learn's `HashingVectorizer` (word/bigram feature hashing, 384
+dimensions, no model download, no network call, deterministic) instead of the
+OpenAI embeddings API. It captures literal word/skill overlap well but won't
+catch synonyms an LLM embedding would (e.g. "ML" vs "machine learning") — a
+reasonable trade-off given required/preferred skill lists are already
+matched by exact overlap and only account for 15% of the score. The OpenAI
+implementation is kept commented out in that file; re-enabling it also means
+bumping `EMBEDDING_DIM` back to `1536` in `app/models/candidate.py`,
+`app/models/benchmark.py`, and the initial Alembic migration, then rerunning
+migrations against a fresh (or re-embedded) database.
 
 ## What's next (Phase 3+)
 
 Gap Analysis Engine, Recommendation Engine, and Career Roadmap Generator (Phase 3)
-will build on `CandidateBenchmarkMatch.gap_summary` and are expected to use
-LangChain for multi-step reasoning over learning/certification recommendations —
-not needed yet since Phases 1–2 only require single-shot extraction and scoring.
+will build on `CandidateBenchmarkMatch.gap_summary`.

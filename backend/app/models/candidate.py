@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 from app.models.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 
-EMBEDDING_DIM = 1536  # matches text-embedding-3-small
+EMBEDDING_DIM = 384  # matches app.services.matching.embeddings HashingVectorizer (local, no OpenAI)
 
 
 class CandidateProfile(Base, UUIDPrimaryKeyMixin, TimestampMixin):

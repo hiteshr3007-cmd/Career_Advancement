@@ -39,8 +39,14 @@ def _experience_fit(
     return 1.0, 0.0
 
 
-def cosine_similarity(vec_a: list[float] | None, vec_b: list[float] | None) -> float:
-    if not vec_a or not vec_b or len(vec_a) != len(vec_b):
+def cosine_similarity(vec_a, vec_b) -> float:
+    # pgvector returns embedding columns as numpy arrays, so avoid truthiness
+    # checks on the vectors themselves (ambiguous for arrays) — check length instead.
+    if vec_a is None or vec_b is None:
+        return 0.0
+    vec_a = list(vec_a)
+    vec_b = list(vec_b)
+    if len(vec_a) == 0 or len(vec_b) == 0 or len(vec_a) != len(vec_b):
         return 0.0
     dot = sum(a * b for a, b in zip(vec_a, vec_b))
     norm_a = math.sqrt(sum(a * a for a in vec_a))
