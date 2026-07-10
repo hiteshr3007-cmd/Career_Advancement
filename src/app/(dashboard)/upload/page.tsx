@@ -1,6 +1,19 @@
+"use client";
+
+import AccessRestricted from "@/components/layout/AccessRestricted";
 import ResumeUploader from "@/components/resume/ResumeUploader";
+import { isCandidate } from "@/lib/roles";
+import { useAuth } from "@/store/auth-context";
 
 export default function UploadPage() {
+  const { user } = useAuth();
+
+  if (!isCandidate(user?.role)) {
+    return (
+      <AccessRestricted message="Resume upload is only available to candidate accounts." />
+    );
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>

@@ -17,6 +17,8 @@ from app.schemas.candidate import (
     CandidateProfileOut,
     CandidateProfileUpdate,
     CandidateSearchFilters,
+    CandidateSearchPage,
+    CandidateSearchResultOut,
     EducationIn,
     EducationOut,
     ExperienceIn,
@@ -175,20 +177,15 @@ def delete_experience(
 
 # ---- Candidate Profile Database (Module 4): search & lookup for recruiters/HR/employers/admins ----
 
-@router.get("", response_model=list[CandidateProfileOut])
-def search_candidates(
-    filters: CandidateSearchFilters = Depends(),
-    limit: int = Query(20, ge=1, le=100),
-    offset: int = Query(0, ge=0),
-    current_user: User = Depends(require_roles(*VIEWER_ROLES)),
-    db: Session = Depends(get_db),
-):
-    query = db.query(CandidateProfile).options(
-        joinedload(CandidateProfile.skills),
-        joinedload(CandidateProfile.education),
-        joinedload(CandidateProfile.experiences),
+def _to_search_result(profile: CandidateProfile) -> CandidateSearchResultOut:
+    return CandidateSearchResultOut(
+        **CandidateProfileOut.model_validate(profile).model_dump(),
+        full_name=profile.user.full_name,
+        email=profile.user.email,
     )
 
+
+def _apply_search_filters(query, filters: CandidateSearchFilters):
     if filters.industry:
         query = query.filter(CandidateProfile.industry.ilike(f"%{filters.industry}%"))
     if filters.functional_area:
@@ -203,11 +200,40 @@ def search_candidates(
         query = query.filter(
             CandidateProfile.skills.any(CandidateSkill.name.ilike(f"%{filters.skill}%"))
         )
+    return query
 
-    return query.offset(offset).limit(limit).all()
+
+@router.get("", response_model=CandidateSearchPage)
+def search_candidates(
+    filters: CandidateSearchFilters = Depends(),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    current_user: User = Depends(require_roles(*VIEWER_ROLES)),
+    db: Session = Depends(get_db),
+):
+    # Count against the plain (un-eager-loaded) query — joinedload'ing the
+    # skills/education/experiences collections below performs LEFT JOINs that
+    # fan out one row per child row, which would inflate .count().
+    base_query = _apply_search_filters(db.query(CandidateProfile), filters)
+    total = base_query.count()
+
+    query = base_query.options(
+        joinedload(CandidateProfile.user),
+        joinedload(CandidateProfile.skills),
+        joinedload(CandidateProfile.education),
+        joinedload(CandidateProfile.experiences),
+    )
+    profiles = query.offset(offset).limit(limit).all()
+
+    return CandidateSearchPage(
+        items=[_to_search_result(profile) for profile in profiles],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 
 
-@router.get("/{candidate_id}", response_model=CandidateProfileOut)
+@router.get("/{candidate_id}", response_model=CandidateSearchResultOut)
 def get_candidate_by_id(
     candidate_id: uuid.UUID,
     current_user: User = Depends(require_roles(*VIEWER_ROLES)),
@@ -216,6 +242,7 @@ def get_candidate_by_id(
     profile = (
         db.query(CandidateProfile)
         .options(
+            joinedload(CandidateProfile.user),
             joinedload(CandidateProfile.skills),
             joinedload(CandidateProfile.education),
             joinedload(CandidateProfile.experiences),
@@ -225,4 +252,4 @@ def get_candidate_by_id(
     )
     if not profile:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate not found")
-    return profile
+    return _to_search_result(profile)
