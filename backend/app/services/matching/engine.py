@@ -40,12 +40,16 @@ def _experience_fit(
 
 
 def cosine_similarity(vec_a, vec_b) -> float:
-    # pgvector returns embedding columns as numpy arrays, so avoid truthiness
-    # checks on the vectors themselves (ambiguous for arrays) — check length instead.
+    # pgvector returns embedding columns as numpy float32 arrays, so avoid
+    # truthiness checks on the vectors themselves (ambiguous for arrays) —
+    # check length instead. Cast elements to native float too: numpy.float32
+    # isn't a subclass of Python float (unlike numpy.float64), so leaving it
+    # in place can make psycopg2 fail to adapt the value later when this
+    # result is written back to a Float column ("can't adapt type 'numpy.float32'").
     if vec_a is None or vec_b is None:
         return 0.0
-    vec_a = list(vec_a)
-    vec_b = list(vec_b)
+    vec_a = [float(x) for x in vec_a]
+    vec_b = [float(x) for x in vec_b]
     if len(vec_a) == 0 or len(vec_b) == 0 or len(vec_a) != len(vec_b):
         return 0.0
     dot = sum(a * b for a, b in zip(vec_a, vec_b))
@@ -53,7 +57,7 @@ def cosine_similarity(vec_a, vec_b) -> float:
     norm_b = math.sqrt(sum(b * b for b in vec_b))
     if norm_a == 0 or norm_b == 0:
         return 0.0
-    return dot / (norm_a * norm_b)
+    return float(dot / (norm_a * norm_b))
 
 
 def compute_match(candidate: CandidateProfile, benchmark: Benchmark) -> dict:
