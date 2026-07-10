@@ -1,10 +1,29 @@
 "use client";
 
-import { Bell, Moon, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Bell, LogOut, Moon, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/store/auth-context";
 
 export default function Topbar() {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const displayName = user?.full_name ?? "Account";
+  const initial = displayName.charAt(0).toUpperCase();
+
+  const handleLogout = () => {
+    logout();
+    router.replace("/login");
+  };
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-6 backdrop-blur">
       <div className="relative w-full max-w-md">
@@ -28,23 +47,32 @@ export default function Topbar() {
           <Moon size={21} />
         </button>
 
-        <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarFallback className="bg-indigo-600 text-white">
-              H
-            </AvatarFallback>
-          </Avatar>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-3 rounded-full outline-none">
+            <Avatar>
+              <AvatarFallback className="bg-indigo-600 text-white">
+                {initial}
+              </AvatarFallback>
+            </Avatar>
 
-          <div className="hidden md:block">
-            <p className="text-sm font-semibold text-slate-900">
-              Hitesh
-            </p>
+            <div className="hidden md:block text-left">
+              <p className="text-sm font-semibold text-slate-900">
+                {displayName}
+              </p>
 
-            <p className="text-xs text-slate-500">
-              Administrator
-            </p>
-          </div>
-        </div>
+              <p className="text-xs text-slate-500">
+                {user?.role ?? "Candidate"}
+              </p>
+            </div>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+              <LogOut />
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
