@@ -1,7 +1,7 @@
 import uuid
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class SkillOut(BaseModel):
@@ -94,6 +94,15 @@ class CandidateProfileOut(BaseModel):
     skills: list[SkillOut] = Field(default_factory=list)
     education: list[EducationOut] = Field(default_factory=list)
     experiences: list[ExperienceOut] = Field(default_factory=list)
+
+
+class CandidateSearchResultOut(CandidateProfileOut):
+    """CandidateProfileOut plus the account fields recruiters/HR/employers need
+    to identify a candidate (name/email live on the User model, not the profile).
+    """
+
+    full_name: str
+    email: EmailStr
 
 
 class CandidateSearchFilters(BaseModel):

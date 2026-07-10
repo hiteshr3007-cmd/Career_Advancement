@@ -17,6 +17,7 @@ from app.schemas.candidate import (
     CandidateProfileOut,
     CandidateProfileUpdate,
     CandidateSearchFilters,
+    CandidateSearchResultOut,
     EducationIn,
     EducationOut,
     ExperienceIn,
@@ -175,7 +176,15 @@ def delete_experience(
 
 # ---- Candidate Profile Database (Module 4): search & lookup for recruiters/HR/employers/admins ----
 
-@router.get("", response_model=list[CandidateProfileOut])
+def _to_search_result(profile: CandidateProfile) -> CandidateSearchResultOut:
+    return CandidateSearchResultOut(
+        **CandidateProfileOut.model_validate(profile).model_dump(),
+        full_name=profile.user.full_name,
+        email=profile.user.email,
+    )
+
+
+@router.get("", response_model=list[CandidateSearchResultOut])
 def search_candidates(
     filters: CandidateSearchFilters = Depends(),
     limit: int = Query(20, ge=1, le=100),
@@ -184,6 +193,7 @@ def search_candidates(
     db: Session = Depends(get_db),
 ):
     query = db.query(CandidateProfile).options(
+        joinedload(CandidateProfile.user),
         joinedload(CandidateProfile.skills),
         joinedload(CandidateProfile.education),
         joinedload(CandidateProfile.experiences),
@@ -204,10 +214,11 @@ def search_candidates(
             CandidateProfile.skills.any(CandidateSkill.name.ilike(f"%{filters.skill}%"))
         )
 
-    return query.offset(offset).limit(limit).all()
+    profiles = query.offset(offset).limit(limit).all()
+    return [_to_search_result(profile) for profile in profiles]
 
 
-@router.get("/{candidate_id}", response_model=CandidateProfileOut)
+@router.get("/{candidate_id}", response_model=CandidateSearchResultOut)
 def get_candidate_by_id(
     candidate_id: uuid.UUID,
     current_user: User = Depends(require_roles(*VIEWER_ROLES)),
@@ -216,6 +227,7 @@ def get_candidate_by_id(
     profile = (
         db.query(CandidateProfile)
         .options(
+            joinedload(CandidateProfile.user),
             joinedload(CandidateProfile.skills),
             joinedload(CandidateProfile.education),
             joinedload(CandidateProfile.experiences),
@@ -225,4 +237,4 @@ def get_candidate_by_id(
     )
     if not profile:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate not found")
-    return profile
+    return _to_search_result(profile)

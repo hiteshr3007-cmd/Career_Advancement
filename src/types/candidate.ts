@@ -1,32 +1,3 @@
-// ---- View models consumed by the UI (kept stable so pages don't change) ----
-
-export interface EducationEntry {
-    institution: string;
-    degree: string;
-    year?: string;
-  }
-
-  export interface ExperienceEntry {
-    company: string;
-    title: string;
-    duration?: string;
-    description?: string;
-  }
-
-  export interface CandidateProfile {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    location: string;
-    summary?: string;
-    skills?: string[];
-    certifications?: string[];
-    education?: EducationEntry[];
-    experience?: ExperienceEntry[];
-  }
-
 // ---- Raw backend shapes (schemas/candidate.py: CandidateProfileOut) ----
 
 export interface SkillOut {
@@ -82,3 +53,60 @@ export interface SkillOut {
     education: EducationOut[];
     experiences: ExperienceOut[];
   }
+
+// ---- Input shapes for editing (schemas/candidate.py: *Update / *In) ----
+
+export interface CandidateProfileUpdateInput {
+  phone?: string | null;
+  location?: string | null;
+  summary?: string | null;
+  current_designation?: string | null;
+  experience_level?: string | null;
+  total_experience_years?: number | null;
+  industry?: string | null;
+  functional_area?: string | null;
+  career_stage?: string | null;
+}
+
+export interface SkillInput {
+  name: string;
+  proficiency?: string | null;
+  category?: string | null;
+}
+
+export interface EducationInput {
+  degree?: string | null;
+  field_of_study?: string | null;
+  institution?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  grade?: string | null;
+}
+
+export interface ExperienceInput {
+  title?: string | null;
+  company?: string | null;
+  industry?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  is_current?: boolean;
+  description?: string | null;
+}
+
+// ---- Recruiter/HR/employer-facing candidate search (schemas/candidate.py: CandidateSearchResultOut) ----
+
+export interface CandidateSearchResult extends CandidateProfileOut {
+  full_name: string;
+  email: string;
+}
+
+export interface CandidateSearchFilters {
+  industry?: string;
+  functional_area?: string;
+  experience_level?: string;
+  min_experience_years?: number;
+  max_experience_years?: number;
+  skill?: string;
+  limit?: number;
+  offset?: number;
+}
