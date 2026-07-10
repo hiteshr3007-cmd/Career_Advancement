@@ -1,8 +1,16 @@
 import uuid
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.models.user import UserRole
+
+# Public self-registration must never elevate to administrator.
+PUBLIC_REGISTER_ROLES = {
+    UserRole.CANDIDATE,
+    UserRole.RECRUITER,
+    UserRole.HR_REVIEWER,
+    UserRole.EMPLOYER,
+}
 
 
 class UserRegister(BaseModel):
@@ -10,6 +18,16 @@ class UserRegister(BaseModel):
     password: str = Field(min_length=8, max_length=128)
     full_name: str = Field(min_length=1, max_length=255)
     role: UserRole = UserRole.CANDIDATE
+
+    @field_validator("role")
+    @classmethod
+    def reject_privileged_self_registration(cls, value: UserRole) -> UserRole:
+        if value not in PUBLIC_REGISTER_ROLES:
+            raise ValueError(
+                "Self-registration as administrator is not allowed. "
+                "Ask an existing administrator to provision privileged accounts."
+            )
+        return value
 
 
 class UserLogin(BaseModel):

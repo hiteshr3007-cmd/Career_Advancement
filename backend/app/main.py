@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError
 
 from app.api.v1.router import api_router
 from app.config import settings
@@ -18,6 +20,15 @@ app.add_middleware(
 )
 
 app.include_router(api_router)
+
+
+@app.exception_handler(OperationalError)
+async def database_unavailable_handler(_request: Request, _exc: OperationalError):
+    """Surface DB connectivity failures as 503 instead of opaque 500s."""
+    return JSONResponse(
+        status_code=503,
+        content={"detail": "Database temporarily unavailable. Please retry."},
+    )
 
 
 @app.get("/health", tags=["Health"])

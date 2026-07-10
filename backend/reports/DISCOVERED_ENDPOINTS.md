@@ -1,0 +1,35 @@
+# Discovered API Endpoints
+
+- `POST /api/v1/auth/login` — Login
+- `POST /api/v1/auth/logout` — Logout
+- `GET /api/v1/auth/me` — Me
+- `POST /api/v1/auth/password-reset/confirm` — Confirm Password Reset
+- `POST /api/v1/auth/password-reset/request` — Request Password Reset
+- `POST /api/v1/auth/refresh` — Refresh
+- `POST /api/v1/auth/register` — Register
+- `GET /api/v1/benchmarks` — List Benchmarks
+- `POST /api/v1/benchmarks` — Create Benchmark
+- `DELETE /api/v1/benchmarks/{benchmark_id}` — Deactivate Benchmark
+- `GET /api/v1/benchmarks/{benchmark_id}` — Get Benchmark
+- `PUT /api/v1/benchmarks/{benchmark_id}` — Update Benchmark
+- `GET /api/v1/candidates` — Search Candidates
+- `GET /api/v1/candidates/me` — Get My Profile
+- `PUT /api/v1/candidates/me` — Update My Profile
+- `POST /api/v1/candidates/me/education` — Add Education
+- `DELETE /api/v1/candidates/me/education/{education_id}` — Delete Education
+- `POST /api/v1/candidates/me/experience` — Add Experience
+- `DELETE /api/v1/candidates/me/experience/{experience_id}` — Delete Experience
+- `POST /api/v1/candidates/me/skills` — Add Skill
+- `DELETE /api/v1/candidates/me/skills/{skill_id}` — Delete Skill
+- `GET /api/v1/candidates/{candidate_id}` — Get Candidate By Id
+- `GET /api/v1/matching/candidates/{candidate_id}` — Get Candidate Matches
+- `POST /api/v1/matching/candidates/{candidate_id}/compute` — Compute Candidate Matches
+- `GET /api/v1/matching/me` — Get My Matches
+- `POST /api/v1/matching/me/compute` — Compute My Matches
+- `GET /api/v1/resumes` — List Resumes
+- `POST /api/v1/resumes/upload` — Upload Resume
+- `DELETE /api/v1/resumes/{resume_id}` — Delete Resume
+- `GET /api/v1/resumes/{resume_id}` — Get Resume
+- `GET /api/v1/resumes/{resume_id}/download` — Download Resume
+- `POST /api/v1/resumes/{resume_id}/reparse` — Reparse Resume
+- `GET /health` — Health Check

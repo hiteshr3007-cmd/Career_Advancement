@@ -72,20 +72,26 @@ def compute_match(candidate: CandidateProfile, benchmark: Benchmark) -> dict:
         candidate.total_experience_years, benchmark.min_experience_years, benchmark.max_experience_years
     )
 
-    semantic_similarity = cosine_similarity(candidate.profile_embedding, benchmark.benchmark_embedding)
+    # Coerce to Python float early: cosine_similarity can return numpy scalars
+    # when embeddings come from pgvector/sklearn, and psycopg2 cannot adapt them.
+    semantic_similarity = float(cosine_similarity(candidate.profile_embedding, benchmark.benchmark_embedding))
     semantic_similarity = max(0.0, min(1.0, semantic_similarity))
 
-    match_score = (
-        required_ratio * WEIGHT_REQUIRED_SKILLS
-        + preferred_ratio * WEIGHT_PREFERRED_SKILLS
-        + cert_ratio * WEIGHT_CERTIFICATIONS
-        + experience_fit * WEIGHT_EXPERIENCE
-        + semantic_similarity * WEIGHT_SEMANTIC
-    ) * 100
+    match_score = float(
+        (
+            required_ratio * WEIGHT_REQUIRED_SKILLS
+            + preferred_ratio * WEIGHT_PREFERRED_SKILLS
+            + cert_ratio * WEIGHT_CERTIFICATIONS
+            + experience_fit * WEIGHT_EXPERIENCE
+            + semantic_similarity * WEIGHT_SEMANTIC
+        )
+        * 100
+    )
 
-    readiness_score = (
-        (required_ratio * 0.5) + (cert_ratio * 0.25) + (experience_fit * 0.25)
-    ) * 100
+    readiness_score = float(
+        ((required_ratio * 0.5) + (cert_ratio * 0.25) + (experience_fit * 0.25)) * 100
+    )
+    experience_gap = float(experience_gap)
 
     gap_summary = {
         "skill_gap": {
@@ -99,8 +105,8 @@ def compute_match(candidate: CandidateProfile, benchmark: Benchmark) -> dict:
         },
         "experience_gap": {
             "years_short": round(experience_gap, 1),
-            "candidate_years": candidate.total_experience_years or 0,
-            "benchmark_min_years": benchmark.min_experience_years,
+            "candidate_years": float(candidate.total_experience_years or 0),
+            "benchmark_min_years": float(benchmark.min_experience_years),
         },
         "overall_recommendation": (
             "ready" if readiness_score >= 80 else "developing" if readiness_score >= 50 else "not_ready"

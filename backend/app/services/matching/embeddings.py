@@ -56,7 +56,8 @@ def generate_embedding(text: str) -> list[float]:
         raise ValueError("Cannot embed empty text")
 
     vector = _vectorizer.transform([text])
-    return vector.toarray()[0].tolist()
+    # Explicit Python floats — avoid numpy scalar leakage into SQLAlchemy/psycopg2.
+    return [float(x) for x in vector.toarray()[0].tolist()]
 
 
 def build_candidate_embedding_text(candidate) -> str:

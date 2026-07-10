@@ -1,0 +1,221 @@
+{
+  "overall_pct": 100.0,
+  "field_accuracy_pct": {
+    "email": 100.0,
+    "name": 100.0,
+    "skills": 100.0,
+    "experience": 100.0,
+    "education": 100.0,
+    "certs": 100.0
+  },
+  "per_resume": [
+    {
+      "id": "swe_jane",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "data_raj",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "pm_sara",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "frontend_lee",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "devops_ana",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "hr_mei",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "finance_omar",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "marketing_priya",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "ml_eng_tom",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "java_backend",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "security_nina",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "minimal_contact_only",
+      "confidence": 0.4,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "messy_formatting",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "django_flask",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "sales_force_user",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    },
+    {
+      "id": "gcp_cloud",
+      "confidence": 1.0,
+      "scores": {
+        "email": 1.0,
+        "name": 1.0,
+        "skills": 1.0,
+        "experience": 1.0,
+        "education": 1.0,
+        "certs": 1.0
+      },
+      "avg": 1.0
+    }
+  ]
+}
