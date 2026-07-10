@@ -4,13 +4,15 @@ import { FormEvent, useEffect, useState } from "react";
 import {
   Award,
   Briefcase,
+  ChevronLeft,
+  ChevronRight,
   GraduationCap,
   Search,
-  Shield,
   User,
   X,
 } from "lucide-react";
 
+import AccessRestricted from "@/components/layout/AccessRestricted";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,11 +25,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { extractApiError } from "@/lib/api";
+import { isViewerRole } from "@/lib/roles";
 import candidateService from "@/services/candidate.service";
 import { useAuth } from "@/store/auth-context";
 import { CandidateSearchFilters, CandidateSearchResult } from "@/types/candidate";
 
 const EXPERIENCE_LEVELS = ["entry", "mid", "senior", "lead", "executive"];
+const PAGE_SIZE = 20;
 
 function label(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -52,16 +56,9 @@ const EMPTY_FILTERS: CandidateSearchFilters = {
 export default function CandidatesPage() {
   const { user } = useAuth();
 
-  if (user && user.role === "Candidate") {
+  if (!isViewerRole(user?.role)) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-        <Shield className="mx-auto text-slate-300" size={40} />
-        <h1 className="mt-3 text-lg font-semibold text-slate-900">Access restricted</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          The candidate directory is only available to recruiters, HR reviewers,
-          employers, and administrators.
-        </p>
-      </div>
+      <AccessRestricted message="The candidate directory is only available to recruiters, HR reviewers, employers, and administrators." />
     );
   }
 
@@ -71,6 +68,8 @@ export default function CandidatesPage() {
 function CandidateDirectory() {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [results, setResults] = useState<CandidateSearchResult[]>([]);
+  const [total, setTotal] = useState(0);
+  const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<CandidateSearchResult | null>(null);
@@ -80,11 +79,17 @@ function CandidateDirectory() {
       Object.entries(activeFilters).filter(([, value]) => value !== "" && value !== undefined)
     );
 
-  const runSearch = async (activeFilters: CandidateSearchFilters) => {
+  const runSearch = async (activeFilters: CandidateSearchFilters, targetOffset: number) => {
     setIsLoading(true);
     try {
-      const data = await candidateService.searchCandidates(cleanFilters(activeFilters));
-      setResults(data);
+      const page = await candidateService.searchCandidates({
+        ...cleanFilters(activeFilters),
+        limit: PAGE_SIZE,
+        offset: targetOffset,
+      });
+      setResults(page.items);
+      setTotal(page.total);
+      setOffset(page.offset);
       setError(null);
     } catch (err) {
       setError(extractApiError(err, "Couldn't load candidates. Please try again."));
@@ -97,10 +102,12 @@ function CandidateDirectory() {
     let isMounted = true;
 
     candidateService
-      .searchCandidates(cleanFilters(EMPTY_FILTERS))
-      .then((data) => {
+      .searchCandidates({ ...cleanFilters(EMPTY_FILTERS), limit: PAGE_SIZE, offset: 0 })
+      .then((page) => {
         if (isMounted) {
-          setResults(data);
+          setResults(page.items);
+          setTotal(page.total);
+          setOffset(page.offset);
           setError(null);
         }
       })
@@ -120,12 +127,20 @@ function CandidateDirectory() {
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    runSearch(filters);
+    runSearch(filters, 0);
+  };
+
+  const handlePrevious = () => {
+    runSearch(filters, Math.max(0, offset - PAGE_SIZE));
+  };
+
+  const handleNext = () => {
+    runSearch(filters, offset + PAGE_SIZE);
   };
 
   const handleReset = () => {
     setFilters(EMPTY_FILTERS);
-    runSearch(EMPTY_FILTERS);
+    runSearch(EMPTY_FILTERS, 0);
   };
 
   return (
@@ -270,6 +285,36 @@ function CandidateDirectory() {
           </Table>
         )}
       </div>
+
+      {total > 0 && (
+        <div className="flex items-center justify-between text-sm text-slate-500">
+          <p>
+            Showing {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} of {total} candidates
+          </p>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isLoading || offset === 0}
+              onClick={handlePrevious}
+            >
+              <ChevronLeft size={14} data-icon="inline-start" />
+              Previous
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isLoading || offset + PAGE_SIZE >= total}
+              onClick={handleNext}
+            >
+              Next
+              <ChevronRight size={14} data-icon="inline-end" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {selected && (
         <CandidateDetailModal candidate={selected} onClose={() => setSelected(null)} />

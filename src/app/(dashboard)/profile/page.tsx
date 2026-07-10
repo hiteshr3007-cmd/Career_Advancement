@@ -12,10 +12,12 @@ import {
   X,
 } from "lucide-react";
 
+import AccessRestricted from "@/components/layout/AccessRestricted";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { extractApiError } from "@/lib/api";
+import { isCandidate } from "@/lib/roles";
 import candidateService from "@/services/candidate.service";
 import { useAuth } from "@/store/auth-context";
 import {
@@ -39,6 +41,18 @@ function formatRange(start?: string | null, end?: string | null, current?: boole
 }
 
 export default function ProfilePage() {
+  const { user } = useAuth();
+
+  if (!isCandidate(user?.role)) {
+    return (
+      <AccessRestricted message="The candidate profile is only available to candidate accounts." />
+    );
+  }
+
+  return <CandidateProfileView />;
+}
+
+function CandidateProfileView() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<CandidateProfileOut | null>(null);
   const [isLoading, setIsLoading] = useState(true);

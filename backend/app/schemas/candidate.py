@@ -112,3 +112,10 @@ class CandidateSearchFilters(BaseModel):
     min_experience_years: float | None = None
     max_experience_years: float | None = None
     skill: str | None = None
+
+
+class CandidateSearchPage(BaseModel):
+    items: list[CandidateSearchResultOut]
+    total: int
+    limit: int
+    offset: int

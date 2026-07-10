@@ -4,6 +4,7 @@ import {
   CandidateProfileOut,
   CandidateProfileUpdateInput,
   CandidateSearchFilters,
+  CandidateSearchPage,
   CandidateSearchResult,
   EducationInput,
   EducationOut,
@@ -64,8 +65,8 @@ const candidateService = {
 
   searchCandidates: async (
     filters: CandidateSearchFilters
-  ): Promise<CandidateSearchResult[]> => {
-    const response = await api.get<CandidateSearchResult[]>(API_ENDPOINTS.CANDIDATE.LIST, {
+  ): Promise<CandidateSearchPage> => {
+    const response = await api.get<CandidateSearchPage>(API_ENDPOINTS.CANDIDATE.LIST, {
       params: filters,
     });
     return response.data;

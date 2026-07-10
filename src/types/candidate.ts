@@ -110,3 +110,10 @@ export interface CandidateSearchFilters {
   limit?: number;
   offset?: number;
 }
+
+export interface CandidateSearchPage {
+  items: CandidateSearchResult[];
+  total: number;
+  limit: number;
+  offset: number;
+}
