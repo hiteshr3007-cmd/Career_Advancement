@@ -1,7 +1,7 @@
 import uuid
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class SkillOut(BaseModel):
@@ -96,6 +96,15 @@ class CandidateProfileOut(BaseModel):
     experiences: list[ExperienceOut] = Field(default_factory=list)
 
 
+class CandidateSearchResultOut(CandidateProfileOut):
+    """CandidateProfileOut plus the account fields recruiters/HR/employers need
+    to identify a candidate (name/email live on the User model, not the profile).
+    """
+
+    full_name: str
+    email: EmailStr
+
+
 class CandidateSearchFilters(BaseModel):
     industry: str | None = None
     functional_area: str | None = None
@@ -105,6 +114,7 @@ class CandidateSearchFilters(BaseModel):
     skill: str | None = None
 
 
+<<<<<<< HEAD
 class CandidateSearchResultOut(CandidateProfileOut):
     """A candidate profile enriched with the owning user's name/email, for the
     recruiter/HR/employer/admin-facing candidate directory."""
@@ -114,6 +124,9 @@ class CandidateSearchResultOut(CandidateProfileOut):
 
 class CandidateSearchPage(BaseModel):
     """Paginated envelope returned by the candidate search endpoint."""
+=======
+class CandidateSearchPage(BaseModel):
+>>>>>>> fcce4aa4a004488ec06b0073db389f049d95b5b2
     items: list[CandidateSearchResultOut]
     total: int
     limit: int

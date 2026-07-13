@@ -4,7 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {ReactNode} from "react";
 
+<<<<<<< HEAD
 import { isAdmin, isCandidate, isViewerRole } from "@/lib/roles";
+=======
+import { isCandidate, isViewerRole } from "@/lib/roles";
+>>>>>>> fcce4aa4a004488ec06b0073db389f049d95b5b2
 import { useAuth } from "@/store/auth-context";
 
 function IconDashboard() {
@@ -111,7 +115,10 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: <IconDashboard /> },
   { label: "Candidates", href: "/candidates", icon: <IconCandidates />, visible: isViewerRole },
+<<<<<<< HEAD
   { label: "Admin", href: "/admin", icon: <IconAdmin />, visible: isAdmin },
+=======
+>>>>>>> fcce4aa4a004488ec06b0073db389f049d95b5b2
   { label: "Resume Upload", href: "/upload", icon: <IconUpload />, visible: isCandidate },
   { label: "Candidate Profile", href: "/profile", icon: <IconProfile />, visible: isCandidate },
   { label: "Gap Analysis", href: "/gap-analysis", icon: <IconGap />, disabled: true },
