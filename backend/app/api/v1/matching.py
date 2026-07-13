@@ -136,6 +136,10 @@ def get_candidate_matches(
     current_user: User = Depends(require_roles(*VIEWER_ROLES)),
     db: Session = Depends(get_db),
 ):
+    # BK-2: verify the candidate exists first so an unknown id returns 404,
+    # consistent with the compute endpoint and GET /candidates/{id}.
+    if not db.get(CandidateProfile, candidate_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate not found")
     return (
         db.query(CandidateBenchmarkMatch)
         .filter(CandidateBenchmarkMatch.candidate_id == candidate_id)

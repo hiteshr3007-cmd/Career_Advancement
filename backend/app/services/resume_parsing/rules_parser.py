@@ -10,7 +10,23 @@ SECTION_HEADERS = {
 }
 
 EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
-PHONE_RE = re.compile(r"(\+?\d{1,3}[\s.-]?)?(\(?\d{2,4}\)?[\s.-]?)?\d{3,4}[\s.-]?\d{3,4}")
+# BK-3: match either an international number (leading +, e.g. +44 20 7946 0958,
+# +971 50 123 4567) OR a number with >=3 digit groups (e.g. 555-123-4567,
+# (555) 123-4567). Requiring +/3-groups avoids matching 2-group year ranges
+# like "2016 - 2020". Candidates are then validated by digit count (E.164: 8-15).
+PHONE_RE = re.compile(
+    r"(?:\+\d[\d\s().\-]{6,}\d)"
+    r"|(?:\(?\d{2,4}\)?[\s.\-]\d{2,4}[\s.\-]\d{2,4}(?:[\s.\-]\d{2,4})?)"
+)
+
+
+def _extract_phone(text: str) -> str | None:
+    for match in PHONE_RE.finditer(text):
+        raw = match.group(0).strip()
+        digits = re.sub(r"\D", "", raw)
+        if 8 <= len(digits) <= 15:
+            return raw
+    return None
 LINKEDIN_RE = re.compile(r"(https?://)?(www\.)?linkedin\.com/[A-Za-z0-9_/-]+", re.IGNORECASE)
 GITHUB_RE = re.compile(r"(https?://)?(www\.)?github\.com/[A-Za-z0-9_/-]+", re.IGNORECASE)
 DATE_RANGE_RE = re.compile(
@@ -20,13 +36,41 @@ DATE_RANGE_RE = re.compile(
 TITLE_AT_COMPANY_RE = re.compile(r"^(?P<title>.+?)\s+at\s+(?P<company>.+)$", re.IGNORECASE)
 
 KNOWN_SKILLS = [
-    "python", "java", "javascript", "typescript", "react", "react.js", "next.js", "node.js",
-    "fastapi", "django", "flask", "sql", "postgresql", "mysql", "mongodb", "aws", "azure",
-    "gcp", "docker", "kubernetes", "terraform", "git", "ci/cd", "html", "css", "tailwind css",
-    "machine learning", "deep learning", "nlp", "langchain", "openai", "pandas", "numpy",
-    "tensorflow", "pytorch", "excel", "power bi", "tableau", "salesforce", "sap", "communication",
-    "leadership", "project management", "agile", "scrum", "recruitment", "talent acquisition",
-    "hr operations", "financial analysis", "accounting", "digital marketing", "seo", "sales",
+    # Languages
+    "python", "java", "javascript", "typescript", "c++", "c#", "go", "golang", "rust",
+    "ruby", "scala", "kotlin", "swift", "objective-c", "php", "r", "matlab", "perl",
+    "dart", "elixir", "haskell", "bash", "powershell", "sql",
+    # Web / frontend
+    "react", "react.js", "react native", "next.js", "node.js", "vue", "vue.js", "angular",
+    "svelte", "html", "css", "tailwind css", "redux", "jquery",
+    # Mobile
+    "ios", "android", "flutter", "xamarin",
+    # Backend frameworks
+    "fastapi", "django", "flask", "express", "express.js", "nestjs", "spring", "spring boot",
+    ".net", "asp.net", "laravel", "rails", "ruby on rails", "graphql", "rest api", "grpc",
+    "microservices", "websockets",
+    # Databases
+    "postgresql", "mysql", "mongodb", "redis", "elasticsearch", "cassandra", "dynamodb",
+    "oracle", "sqlite", "mariadb", "neo4j", "snowflake", "redshift", "bigquery",
+    # Cloud / DevOps
+    "aws", "azure", "gcp", "docker", "kubernetes", "terraform", "ansible", "helm", "jenkins",
+    "gitlab ci", "github actions", "circleci", "argocd", "prometheus", "grafana",
+    "cloudformation", "git", "ci/cd", "linux",
+    # Data / big data
+    "spark", "apache spark", "hadoop", "kafka", "hive", "airflow", "databricks", "dbt", "etl",
+    "pandas", "numpy", "excel", "power bi", "tableau", "looker",
+    # ML / AI
+    "machine learning", "deep learning", "nlp", "computer vision", "langchain", "openai",
+    "tensorflow", "pytorch", "keras", "scikit-learn", "hugging face", "opencv", "spacy",
+    "xgboost", "llm", "generative ai",
+    # Testing
+    "pytest", "jest", "selenium", "cypress", "junit",
+    # Messaging / infra
+    "rabbitmq", "mqtt",
+    # Enterprise / business
+    "salesforce", "sap", "communication", "leadership", "project management", "agile",
+    "scrum", "recruitment", "talent acquisition", "hr operations", "financial analysis",
+    "accounting", "digital marketing", "seo", "sales",
 ]
 
 KNOWN_CERTIFICATIONS = [
@@ -74,7 +118,9 @@ def _extract_skills(text: str, skills_section: str | None) -> list[str]:
     haystack = (skills_section or text).lower()
     found = []
     for skill in KNOWN_SKILLS:
-        pattern = r"\b" + re.escape(skill) + r"\b"
+        # Bound on alphanumerics only (not +/#/./-), so "c++", "c#", ".net" and
+        # "node.js" match, while "java" still doesn't match inside "javascript".
+        pattern = r"(?<![a-z0-9])" + re.escape(skill) + r"(?![a-z0-9])"
         if re.search(pattern, haystack):
             found.append(skill)
     return sorted(set(found))
@@ -164,7 +210,7 @@ def parse_resume_with_rules(text: str) -> tuple[dict, float]:
     sections = _find_sections(text)
 
     email_match = EMAIL_RE.search(text)
-    phone_match = PHONE_RE.search(text)
+    phone = _extract_phone(text)
     linkedin_match = LINKEDIN_RE.search(text)
     github_match = GITHUB_RE.search(text)
     email = email_match.group(0) if email_match else None
@@ -178,7 +224,7 @@ def parse_resume_with_rules(text: str) -> tuple[dict, float]:
         "personal_info": {
             "name": _extract_name(text, email),
             "email": email,
-            "phone": phone_match.group(0).strip() if phone_match else None,
+            "phone": phone,
             "linkedin": linkedin_match.group(0) if linkedin_match else None,
             "github": github_match.group(0) if github_match else None,
             "location": None,

@@ -103,3 +103,18 @@ class CandidateSearchFilters(BaseModel):
     min_experience_years: float | None = None
     max_experience_years: float | None = None
     skill: str | None = None
+
+
+class CandidateSearchResultOut(CandidateProfileOut):
+    """A candidate profile enriched with the owning user's name/email, for the
+    recruiter/HR/employer/admin-facing candidate directory."""
+    full_name: str
+    email: str
+
+
+class CandidateSearchPage(BaseModel):
+    """Paginated envelope returned by the candidate search endpoint."""
+    items: list[CandidateSearchResultOut]
+    total: int
+    limit: int
+    offset: int

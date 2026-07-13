@@ -12,8 +12,15 @@ from app.services.matching.embeddings import EmbeddingUnavailable, build_benchma
 
 router = APIRouter(prefix="/benchmarks", tags=["Benchmark Repository"])
 
+# Anyone authenticated can read benchmarks; only company staff manage them.
 READ_ROLES = (
     UserRole.CANDIDATE.value,
+    UserRole.RECRUITER.value,
+    UserRole.HR_REVIEWER.value,
+    UserRole.EMPLOYER.value,
+    UserRole.ADMINISTRATOR.value,
+)
+MANAGE_ROLES = (
     UserRole.RECRUITER.value,
     UserRole.HR_REVIEWER.value,
     UserRole.EMPLOYER.value,
@@ -33,7 +40,7 @@ def _refresh_embedding(benchmark: Benchmark) -> None:
 @router.post("", response_model=BenchmarkOut, status_code=status.HTTP_201_CREATED)
 def create_benchmark(
     payload: BenchmarkCreate,
-    current_user: User = Depends(require_roles(UserRole.ADMINISTRATOR.value)),
+    current_user: User = Depends(require_roles(*MANAGE_ROLES)),
     db: Session = Depends(get_db),
 ):
     benchmark = Benchmark(**payload.model_dump(), created_by=current_user.id)
@@ -81,7 +88,7 @@ def get_benchmark(
 def update_benchmark(
     benchmark_id: uuid.UUID,
     payload: BenchmarkUpdate,
-    current_user: User = Depends(require_roles(UserRole.ADMINISTRATOR.value)),
+    current_user: User = Depends(require_roles(*MANAGE_ROLES)),
     db: Session = Depends(get_db),
 ):
     benchmark = db.get(Benchmark, benchmark_id)
@@ -103,7 +110,7 @@ def update_benchmark(
 @router.delete("/{benchmark_id}", status_code=status.HTTP_204_NO_CONTENT)
 def deactivate_benchmark(
     benchmark_id: uuid.UUID,
-    current_user: User = Depends(require_roles(UserRole.ADMINISTRATOR.value)),
+    current_user: User = Depends(require_roles(*MANAGE_ROLES)),
     db: Session = Depends(get_db),
 ):
     benchmark = db.get(Benchmark, benchmark_id)

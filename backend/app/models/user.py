@@ -11,11 +11,11 @@ from app.models.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 
 
 class UserRole(str, Enum):
-    CANDIDATE = "candidate"
-    RECRUITER = "recruiter"
-    HR_REVIEWER = "hr_reviewer"
-    EMPLOYER = "employer"
-    ADMINISTRATOR = "administrator"
+    CANDIDATE = "candidate"            # self-registers; owns their own profile/resume/matches
+    RECRUITER = "recruiter"            # company staff; admin-created; views all candidates + manages benchmarks
+    HR_REVIEWER = "hr_reviewer"        # company staff; admin-created; views all candidates + manages benchmarks
+    EMPLOYER = "employer"              # company staff; admin-created; views all candidates + manages benchmarks
+    ADMINISTRATOR = "administrator"    # designated by email allowlist; full control incl. user management
 
 
 class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):

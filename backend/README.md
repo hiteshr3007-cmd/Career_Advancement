@@ -60,6 +60,31 @@ how to switch back to OpenAI later.
 
 Alternatively, `docker compose up --build` runs both the API and DB in containers.
 
+## Sharing one database across a team
+
+By default every teammate's `docker compose up -d db` creates its own isolated
+Postgres container + volume — nobody sees anyone else's data. To have everyone
+work against the same database instead:
+
+1. Create a free Postgres project with the **pgvector** extension enabled
+   (e.g. [Neon](https://neon.tech) or [Supabase](https://supabase.com) — both
+   support pgvector on their free tier). Run `CREATE EXTENSION IF NOT EXISTS
+   vector;` once against it if it isn't enabled automatically.
+2. In `backend/.env`, set `DOCKER_DATABASE_URL` (if running via Docker) or
+   `DATABASE_URL` (if running the API directly via `uvicorn`) to that
+   project's connection string.
+3. **One person only** runs migrations against it:
+   ```
+   docker compose exec api alembic upgrade head
+   ```
+   (or `.venv\Scripts\python -m alembic upgrade head` if running outside Docker)
+4. Everyone else runs the API pointed at the same URL:
+   - Via Docker: `docker compose up --no-deps -d api` — the `--no-deps` flag
+     skips starting the local `db` container, since it isn't needed anymore.
+   - Via venv: `.venv\Scripts\python -m uvicorn app.main:app --reload` as usual.
+
+See the comments in [.env.example](.env.example) for the exact variable names.
+
 ## Project layout
 
 ```

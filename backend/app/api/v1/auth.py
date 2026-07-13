@@ -53,11 +53,20 @@ def register(payload: UserRegister, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
+    # The schema already restricts public self-registration to candidate. On top
+    # of that, an email on the admin allowlist is granted administrator here —
+    # so the "few admin emails" simply register normally and become admins.
+    if payload.email.lower() in settings.admin_email_set:
+        role = UserRole.ADMINISTRATOR.value
+    else:
+        role = payload.role.value
+
     user = User(
         email=payload.email,
         hashed_password=hash_password(payload.password),
         full_name=payload.full_name,
-        role=payload.role.value,
+        role=role,
+        is_verified=(role == UserRole.ADMINISTRATOR.value),
     )
     db.add(user)
     db.flush()
