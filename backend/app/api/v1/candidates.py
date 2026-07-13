@@ -37,6 +37,16 @@ VIEWER_ROLES = (
 )
 
 
+def _to_search_result(profile: CandidateProfile) -> CandidateSearchResultOut:
+    """Enrich a profile with its owning user's name/email for the directory."""
+    base = CandidateProfileOut.model_validate(profile).model_dump()
+    return CandidateSearchResultOut(
+        **base,
+        full_name=profile.user.full_name,
+        email=profile.user.email,
+    )
+
+
 def _get_own_profile(db: Session, user: User) -> CandidateProfile:
     profile = (
         db.query(CandidateProfile)
@@ -177,11 +187,27 @@ def delete_experience(
 
 # ---- Candidate Profile Database (Module 4): search & lookup for recruiters/HR/employers/admins ----
 
+<<<<<<< HEAD
+@router.get("", response_model=CandidateSearchPage)
+def search_candidates(
+    filters: CandidateSearchFilters = Depends(),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    current_user: User = Depends(require_roles(*VIEWER_ROLES)),
+    db: Session = Depends(get_db),
+):
+    query = db.query(CandidateProfile).options(
+        joinedload(CandidateProfile.user),
+        joinedload(CandidateProfile.skills),
+        joinedload(CandidateProfile.education),
+        joinedload(CandidateProfile.experiences),
+=======
 def _to_search_result(profile: CandidateProfile) -> CandidateSearchResultOut:
     return CandidateSearchResultOut(
         **CandidateProfileOut.model_validate(profile).model_dump(),
         full_name=profile.user.full_name,
         email=profile.user.email,
+>>>>>>> fcce4aa4a004488ec06b0073db389f049d95b5b2
     )
 
 
@@ -200,6 +226,19 @@ def _apply_search_filters(query, filters: CandidateSearchFilters):
         query = query.filter(
             CandidateProfile.skills.any(CandidateSkill.name.ilike(f"%{filters.skill}%"))
         )
+<<<<<<< HEAD
+
+    total = query.order_by(None).count()
+    profiles = query.offset(offset).limit(limit).all()
+    return CandidateSearchPage(
+        items=[_to_search_result(p) for p in profiles],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
+
+
+=======
     return query
 
 
@@ -233,6 +272,7 @@ def search_candidates(
     )
 
 
+>>>>>>> fcce4aa4a004488ec06b0073db389f049d95b5b2
 @router.get("/{candidate_id}", response_model=CandidateSearchResultOut)
 def get_candidate_by_id(
     candidate_id: uuid.UUID,

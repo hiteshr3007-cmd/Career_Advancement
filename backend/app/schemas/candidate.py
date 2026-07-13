@@ -114,7 +114,19 @@ class CandidateSearchFilters(BaseModel):
     skill: str | None = None
 
 
+<<<<<<< HEAD
+class CandidateSearchResultOut(CandidateProfileOut):
+    """A candidate profile enriched with the owning user's name/email, for the
+    recruiter/HR/employer/admin-facing candidate directory."""
+    full_name: str
+    email: str
+
+
 class CandidateSearchPage(BaseModel):
+    """Paginated envelope returned by the candidate search endpoint."""
+=======
+class CandidateSearchPage(BaseModel):
+>>>>>>> fcce4aa4a004488ec06b0073db389f049d95b5b2
     items: list[CandidateSearchResultOut]
     total: int
     limit: int

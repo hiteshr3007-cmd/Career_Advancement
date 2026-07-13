@@ -4,7 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {ReactNode} from "react";
 
+<<<<<<< HEAD
+import { isAdmin, isCandidate, isViewerRole } from "@/lib/roles";
+=======
 import { isCandidate, isViewerRole } from "@/lib/roles";
+>>>>>>> fcce4aa4a004488ec06b0073db389f049d95b5b2
 import { useAuth } from "@/store/auth-context";
 
 function IconDashboard() {
@@ -83,6 +87,14 @@ function IconEmployer() {
     </svg>
   );
 }
+function IconAdmin() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  );
+}
 function IconSettings() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -103,6 +115,10 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: <IconDashboard /> },
   { label: "Candidates", href: "/candidates", icon: <IconCandidates />, visible: isViewerRole },
+<<<<<<< HEAD
+  { label: "Admin", href: "/admin", icon: <IconAdmin />, visible: isAdmin },
+=======
+>>>>>>> fcce4aa4a004488ec06b0073db389f049d95b5b2
   { label: "Resume Upload", href: "/upload", icon: <IconUpload />, visible: isCandidate },
   { label: "Candidate Profile", href: "/profile", icon: <IconProfile />, visible: isCandidate },
   { label: "Gap Analysis", href: "/gap-analysis", icon: <IconGap />, disabled: true },

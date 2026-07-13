@@ -25,4 +25,11 @@ export const API_ENDPOINTS = {
       UPLOAD: "/resumes/upload",
       LIST: "/resumes",
     },
+
+    ADMIN: {
+      USERS: "/admin/users",
+      USER_ROLE: (userId: string) => `/admin/users/${userId}/role`,
+      USER_ACTIVATE: (userId: string) => `/admin/users/${userId}/activate`,
+      USER_DEACTIVATE: (userId: string) => `/admin/users/${userId}/deactivate`,
+    },
   };

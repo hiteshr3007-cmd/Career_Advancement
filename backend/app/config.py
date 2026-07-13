@@ -14,6 +14,12 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg2://platform:platform@localhost:5433/career_platform"
 
+    # Connection-pool sizing (BK-1). Defaults raised well above SQLAlchemy's
+    # stock 5+10 so the API doesn't exhaust the pool under moderate concurrency.
+    db_pool_size: int = 20
+    db_max_overflow: int = 40
+    db_pool_timeout: int = 10  # seconds to wait for a connection before erroring
+
     aws_access_key_id: str | None = None
     aws_secret_access_key: str | None = None
     aws_region: str = "us-east-1"
@@ -25,9 +31,17 @@ class Settings(BaseSettings):
 
     cors_origins: str = "http://localhost:3000"
 
+    # Comma-separated allowlist of emails that become administrators on register.
+    # Nobody outside this list can ever obtain the administrator role.
+    admin_emails: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+    @property
+    def admin_email_set(self) -> set[str]:
+        return {e.strip().lower() for e in self.admin_emails.split(",") if e.strip()}
 
 
 @lru_cache

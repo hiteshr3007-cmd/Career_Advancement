@@ -24,7 +24,12 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql+psycopg2://platform:platform@db:5432/career_platform
+      # Defaults to the local `db` container above. To point this API at a
+      # shared/external database instead (e.g. a Neon/Supabase project so a
+      # team sees the same data), set DOCKER_DATABASE_URL in .env to that
+      # connection string and start with `docker compose up --no-deps -d api`
+      # so the local db container isn't started at all.
+      DATABASE_URL: ${DOCKER_DATABASE_URL:-postgresql+psycopg2://platform:platform@db:5432/career_platform}
     ports:
       - "8000:8000"
     depends_on:
