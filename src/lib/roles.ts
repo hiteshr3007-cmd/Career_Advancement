@@ -1,12 +1,8 @@
 // AuthUser.role is already display-formatted by auth-context.tsx's formatRole()
 // (e.g. "hr_reviewer" -> "Hr reviewer"), so these constants match that casing.
-<<<<<<< HEAD
 // Backend roles (models/user.py): candidate | recruiter | hr_reviewer | employer | administrator.
 export const CANDIDATE_ROLE = "Candidate";
 export const ADMINISTRATOR_ROLE = "Administrator";
-=======
-export const CANDIDATE_ROLE = "Candidate";
->>>>>>> fcce4aa4a004488ec06b0073db389f049d95b5b2
 export const VIEWER_ROLES = ["Recruiter", "Hr reviewer", "Employer", "Administrator"];
 
 export function isCandidate(role?: string): boolean {
@@ -16,10 +12,7 @@ export function isCandidate(role?: string): boolean {
 export function isViewerRole(role?: string): boolean {
   return !!role && VIEWER_ROLES.includes(role);
 }
-<<<<<<< HEAD
 
 export function isAdmin(role?: string): boolean {
   return role === ADMINISTRATOR_ROLE;
 }
-=======
->>>>>>> fcce4aa4a004488ec06b0073db389f049d95b5b2
