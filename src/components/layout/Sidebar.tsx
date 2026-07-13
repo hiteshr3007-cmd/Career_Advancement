@@ -4,6 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {ReactNode} from "react";
 
+import { isAdmin, isCandidate, isViewerRole } from "@/lib/roles";
+import { useAuth } from "@/store/auth-context";
+
 function IconDashboard() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -80,6 +83,14 @@ function IconEmployer() {
     </svg>
   );
 }
+function IconAdmin() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  );
+}
 function IconSettings() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -94,13 +105,15 @@ interface NavItem {
   href: string;
   icon: ReactNode;
   disabled?: boolean;
+  visible?: (role?: string) => boolean;
 }
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: <IconDashboard /> },
-  { label: "Candidates", href: "/candidates", icon: <IconCandidates /> },
-  { label: "Resume Upload", href: "/upload", icon: <IconUpload /> },
-  { label: "Candidate Profile", href: "/profile", icon: <IconProfile /> },
+  { label: "Candidates", href: "/candidates", icon: <IconCandidates />, visible: isViewerRole },
+  { label: "Admin", href: "/admin", icon: <IconAdmin />, visible: isAdmin },
+  { label: "Resume Upload", href: "/upload", icon: <IconUpload />, visible: isCandidate },
+  { label: "Candidate Profile", href: "/profile", icon: <IconProfile />, visible: isCandidate },
   { label: "Gap Analysis", href: "/gap-analysis", icon: <IconGap />, disabled: true },
   { label: "Career Roadmap", href: "/career-roadmap", icon: <IconRoadmap />, disabled: true },
   { label: "Recruiter", href: "/recruiter", icon: <IconRecruiter />, disabled: true },
@@ -112,15 +125,17 @@ const settingsItem: NavItem = { label: "Settings", href: "/settings", icon: <Ico
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const visibleItems = navItems.filter((item) => !item.visible || item.visible(user?.role));
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-slate-800 bg-slate-900 text-slate-300">
+    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-slate-800 bg-slate-900 text-slate-300">
       <div className="flex h-16 items-center px-6 border-b border-slate-800">
         <span className="text-lg font-semibold text-white">Career Advancement</span>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const isActive = pathname === item.href;
 
           if (item.disabled) {
