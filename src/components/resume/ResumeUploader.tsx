@@ -6,6 +6,7 @@ import { CheckCircle2, FileText, UploadCloud, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { extractApiError } from "@/lib/api";
 import resumeService from "@/services/resume.service";
+import { Resume } from "@/types/resume";
 
 const ACCEPTED_TYPES = [
   "application/pdf",
@@ -17,7 +18,11 @@ const MAX_SIZE_BYTES = 10 * 1024 * 1024;
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
-export default function ResumeUploader() {
+export default function ResumeUploader({
+  onUploaded,
+}: {
+  onUploaded?: (resume: Resume) => void;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -64,9 +69,10 @@ export default function ResumeUploader() {
     setMessage(null);
 
     try {
-      await resumeService.uploadResume(selectedFile);
+      const uploaded = await resumeService.uploadResume(selectedFile);
       setStatus("success");
       setMessage("Resume uploaded successfully.");
+      onUploaded?.(uploaded);
     } catch (err) {
       setStatus("error");
       setMessage(extractApiError(err, "Upload failed. Please try again."));

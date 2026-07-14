@@ -41,6 +41,8 @@ interface AuthContextValue {
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<{ autoLoggedIn: boolean }>;
   logout: () => void;
+  permissionsChanged: boolean;
+  dismissPermissionsChanged: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -49,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [hasToken, setHasToken] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [permissionsChanged, setPermissionsChanged] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
@@ -79,6 +82,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     setIsLoading(false);
+  }, []);
+
+  // A 403 means the backend rejected an otherwise-valid session on a role
+  // check — most often because an admin reassigned this user's role while
+  // they were logged in. Re-sync the cached role in the background so nav
+  // items and page gates reflect reality without forcing a re-login.
+  useEffect(() => {
+    const handleForbidden = () => {
+      if (!localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)) return;
+
+      authService
+        .getMe()
+        .then((me) => {
+          const authUser = toAuthUser(me);
+          localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(authUser));
+          setUser((prev) => {
+            if (prev && prev.role !== authUser.role) {
+              setPermissionsChanged(true);
+            }
+            return authUser;
+          });
+        })
+        .catch(() => {
+          // A genuinely dead session (401) is already handled by the
+          // interceptor's refresh/logout path; nothing more to do here.
+        });
+    };
+
+    window.addEventListener("auth:forbidden", handleForbidden);
+    return () => window.removeEventListener("auth:forbidden", handleForbidden);
+  }, []);
+
+  const dismissPermissionsChanged = useCallback(() => {
+    setPermissionsChanged(false);
   }, []);
 
   const persistTokens = (accessToken: string, refreshToken: string) => {
@@ -147,6 +184,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        permissionsChanged,
+        dismissPermissionsChanged,
       }}
     >
       {children}

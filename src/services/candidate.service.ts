@@ -59,6 +59,15 @@ const candidateService = {
     return response.data;
   },
 
+  // Clears a manual total_experience_years override and re-derives it from
+  // the candidate's experience entries; returns the updated profile.
+  recalculateExperienceYears: async (): Promise<CandidateProfileOut> => {
+    const response = await api.post<CandidateProfileOut>(
+      API_ENDPOINTS.CANDIDATE.EXPERIENCE_RECALCULATE
+    );
+    return response.data;
+  },
+
   deleteExperience: async (experienceId: string): Promise<void> => {
     await api.delete(API_ENDPOINTS.CANDIDATE.EXPERIENCE_ITEM(experienceId));
   },

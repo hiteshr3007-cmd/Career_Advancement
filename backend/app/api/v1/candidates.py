@@ -12,7 +12,7 @@ from app.models.candidate import (
     CandidateSkill,
 )
 from app.models.user import User, UserRole
-from app.services.candidate_profile import recompute_completeness
+from app.services.candidate_profile import recompute_completeness, recompute_total_experience_years
 from app.schemas.candidate import (
     CandidateProfileOut,
     CandidateProfileUpdate,
@@ -81,6 +81,11 @@ def update_my_profile(
     update_data = payload.model_dump(exclude_unset=True)
     if "career_preferences" in update_data and update_data["career_preferences"] is not None:
         update_data["career_preferences"] = update_data["career_preferences"]
+    # An explicit total_experience_years in the payload is the candidate
+    # hand-editing the field, so stop auto-deriving it from experience entries
+    # from here on (see recompute_total_experience_years).
+    if "total_experience_years" in update_data:
+        profile.experience_years_manual_override = True
     for field, value in update_data.items():
         setattr(profile, field, value)
     recompute_completeness(profile)
@@ -161,8 +166,11 @@ def add_experience(
 ):
     profile = _get_own_profile(db, current_user)
     entry = CandidateExperience(candidate_id=profile.id, **payload.model_dump())
-    db.add(entry)
+    # Append via the relationship (not db.add) so profile.experiences reflects
+    # the new entry immediately, in-memory, for recompute_total_experience_years.
+    profile.experiences.append(entry)
     recompute_completeness(profile)
+    recompute_total_experience_years(profile)
     db.commit()
     db.refresh(entry)
     return entry
@@ -180,9 +188,30 @@ def delete_experience(
     ).first()
     if not entry:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Experience entry not found")
-    db.delete(entry)
+    # Remove via the relationship (delete-orphan cascade handles the DB delete)
+    # so profile.experiences reflects the removal for recompute_total_experience_years.
+    profile.experiences.remove(entry)
+    recompute_total_experience_years(profile)
     db.commit()
     return None
+
+
+@router.post("/me/experience/recalculate", response_model=CandidateProfileOut)
+def recalculate_experience_years(
+    current_user: User = Depends(require_roles(UserRole.CANDIDATE.value)),
+    db: Session = Depends(get_db),
+):
+    """Clear a manual total_experience_years override and re-derive the value
+    from the candidate's experience entries. A single UPDATE over the already
+    loaded profile (experiences are eager-loaded by _get_own_profile), so it
+    stays cheap under load and never fans out into per-entry queries. Distinct
+    static path so it can't collide with DELETE /me/experience/{id}."""
+    profile = _get_own_profile(db, current_user)
+    profile.experience_years_manual_override = False
+    recompute_total_experience_years(profile)
+    db.commit()
+    db.refresh(profile)
+    return profile
 
 
 # ---- Candidate Profile Database (Module 4): search & lookup for recruiters/HR/employers/admins ----

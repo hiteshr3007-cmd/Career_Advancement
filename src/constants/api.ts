@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
       EDUCATION_ITEM: (educationId: string) => `/candidates/me/education/${educationId}`,
       EXPERIENCE: "/candidates/me/experience",
       EXPERIENCE_ITEM: (experienceId: string) => `/candidates/me/experience/${experienceId}`,
+      EXPERIENCE_RECALCULATE: "/candidates/me/experience/recalculate",
       LIST: "/candidates",
       DETAIL: (candidateId: string) => `/candidates/${candidateId}`,
     },
@@ -24,6 +25,9 @@ export const API_ENDPOINTS = {
     RESUME: {
       UPLOAD: "/resumes/upload",
       LIST: "/resumes",
+      DETAIL: (resumeId: string) => `/resumes/${resumeId}`,
+      DOWNLOAD: (resumeId: string) => `/resumes/${resumeId}/download`,
+      REPARSE: (resumeId: string) => `/resumes/${resumeId}/reparse`,
     },
 
     ADMIN: {
@@ -31,5 +35,17 @@ export const API_ENDPOINTS = {
       USER_ROLE: (userId: string) => `/admin/users/${userId}/role`,
       USER_ACTIVATE: (userId: string) => `/admin/users/${userId}/activate`,
       USER_DEACTIVATE: (userId: string) => `/admin/users/${userId}/deactivate`,
+    },
+
+    BENCHMARK: {
+      LIST: "/benchmarks",
+      DETAIL: (benchmarkId: string) => `/benchmarks/${benchmarkId}`,
+    },
+
+    MATCHING: {
+      ME: "/matching/me",
+      ME_COMPUTE: "/matching/me/compute",
+      CANDIDATE: (candidateId: string) => `/matching/candidates/${candidateId}`,
+      CANDIDATE_COMPUTE: (candidateId: string) => `/matching/candidates/${candidateId}/compute`,
     },
   };
