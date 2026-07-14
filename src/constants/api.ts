@@ -24,6 +24,9 @@ export const API_ENDPOINTS = {
     RESUME: {
       UPLOAD: "/resumes/upload",
       LIST: "/resumes",
+      DETAIL: (resumeId: string) => `/resumes/${resumeId}`,
+      DOWNLOAD: (resumeId: string) => `/resumes/${resumeId}/download`,
+      REPARSE: (resumeId: string) => `/resumes/${resumeId}/reparse`,
     },
 
     ADMIN: {

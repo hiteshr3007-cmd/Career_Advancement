@@ -129,7 +129,7 @@ const navItems: NavItem[] = [
   { label: "Candidates", href: "/candidates", icon: <IconCandidates />, visible: isViewerRole },
   { label: "Benchmarks", href: "/benchmarks", icon: <IconBenchmark /> },
   { label: "Admin", href: "/admin", icon: <IconAdmin />, visible: isAdmin },
-  { label: "Resume Upload", href: "/upload", icon: <IconUpload />, visible: isCandidate },
+  { label: "My Resumes", href: "/upload", icon: <IconUpload />, visible: isCandidate },
   { label: "Candidate Profile", href: "/profile", icon: <IconProfile />, visible: isCandidate },
   { label: "Career Matches", href: "/matches", icon: <IconMatches />, visible: isCandidate },
   { label: "Gap Analysis", href: "/gap-analysis", icon: <IconGap />, disabled: true },
