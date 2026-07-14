@@ -104,6 +104,16 @@ api.interceptors.response.use(
       }
     }
 
+    // A valid session hit a role check it no longer (or never did) satisfy —
+    // most commonly a stale client-side role cache after an admin reassigns
+    // this user's role mid-session. This is not a session problem, so don't
+    // log the user out; just let AuthProvider re-sync the cached role/nav in
+    // the background. The rejection below still carries the backend's own
+    // `detail` message for whichever page triggered the call to show inline.
+    if (status === 403 && typeof window !== "undefined") {
+      window.dispatchEvent(new Event("auth:forbidden"));
+    }
+
     return Promise.reject(error);
   }
 );
