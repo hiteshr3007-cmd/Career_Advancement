@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
@@ -78,6 +79,11 @@ def _run_matching(db: Session, candidate: CandidateProfile, benchmark_id: uuid.U
         if existing:
             for field, value in scores.items():
                 setattr(existing, field, value)
+            # Recomputing against unchanged inputs yields byte-identical scores,
+            # which SQLAlchemy's change tracking would otherwise treat as a no-op
+            # and skip the UPDATE (silently leaving computed_at stale). Setting
+            # it explicitly guarantees every compute call bumps it.
+            existing.computed_at = datetime.now(timezone.utc)
             results.append(existing)
         else:
             match = CandidateBenchmarkMatch(candidate_id=candidate.id, benchmark_id=benchmark.id, **scores)

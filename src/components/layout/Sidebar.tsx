@@ -52,6 +52,13 @@ function IconBenchmark() {
     </svg>
   );
 }
+function IconMatches() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2l3 6 6.5.9-4.7 4.6 1.1 6.5-5.9-3.1-5.9 3.1 1.1-6.5L2.5 8.9 9 8z" />
+    </svg>
+  );
+}
 function IconGap() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -124,6 +131,7 @@ const navItems: NavItem[] = [
   { label: "Admin", href: "/admin", icon: <IconAdmin />, visible: isAdmin },
   { label: "Resume Upload", href: "/upload", icon: <IconUpload />, visible: isCandidate },
   { label: "Candidate Profile", href: "/profile", icon: <IconProfile />, visible: isCandidate },
+  { label: "Career Matches", href: "/matches", icon: <IconMatches />, visible: isCandidate },
   { label: "Gap Analysis", href: "/gap-analysis", icon: <IconGap />, disabled: true },
   { label: "Career Roadmap", href: "/career-roadmap", icon: <IconRoadmap />, disabled: true },
   { label: "Recruiter", href: "/recruiter", icon: <IconRecruiter />, disabled: true },

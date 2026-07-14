@@ -31,4 +31,6 @@ class CandidateBenchmarkMatch(Base, UUIDPrimaryKeyMixin):
 
     gap_summary: Mapped[dict] = mapped_column(JSON, default=dict)
 
-    computed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    computed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )

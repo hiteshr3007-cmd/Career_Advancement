@@ -37,4 +37,11 @@ export const API_ENDPOINTS = {
       LIST: "/benchmarks",
       DETAIL: (benchmarkId: string) => `/benchmarks/${benchmarkId}`,
     },
+
+    MATCHING: {
+      ME: "/matching/me",
+      ME_COMPUTE: "/matching/me/compute",
+      CANDIDATE: (candidateId: string) => `/matching/candidates/${candidateId}`,
+      CANDIDATE_COMPUTE: (candidateId: string) => `/matching/candidates/${candidateId}/compute`,
+    },
   };
