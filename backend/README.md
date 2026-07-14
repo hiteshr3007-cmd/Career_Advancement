@@ -6,7 +6,9 @@ and **Phase 2** (Candidate Profile Engine, Benchmark Repository, Matching Engine
 ## Stack
 
 - FastAPI + SQLAlchemy 2.0 + Alembic
-- PostgreSQL + pgvector (embeddings for semantic matching, and resume file storage — see below)
+- PostgreSQL + pgvector (embeddings for semantic matching, and resume file storage — see below).
+  The team's shared database runs on **Neon** — see "Neon: our shared team database" below for
+  how to connect to it; local Docker Postgres also works for solo/offline dev.
 - JWT auth (access + refresh tokens)
 - Local/free resume parsing + embeddings (no OpenAI account needed — see below)
 
@@ -60,30 +62,100 @@ how to switch back to OpenAI later.
 
 Alternatively, `docker compose up --build` runs both the API and DB in containers.
 
-## Sharing one database across a team
+## Neon: our shared team database
 
-By default every teammate's `docker compose up -d db` creates its own isolated
-Postgres container + volume — nobody sees anyone else's data. To have everyone
-work against the same database instead:
+**This project's team database runs on [Neon](https://neon.tech)** (serverless
+Postgres, pgvector-enabled) instead of everyone running their own local
+Postgres. Local Docker Postgres (below) still works and is useful for fully
+offline/solo work, but for anything you want teammates to see, point at Neon.
 
-1. Create a free Postgres project with the **pgvector** extension enabled
-   (e.g. [Neon](https://neon.tech) or [Supabase](https://supabase.com) — both
-   support pgvector on their free tier). Run `CREATE EXTENSION IF NOT EXISTS
-   vector;` once against it if it isn't enabled automatically.
-2. In `backend/.env`, set `DOCKER_DATABASE_URL` (if running via Docker) or
-   `DATABASE_URL` (if running the API directly via `uvicorn`) to that
-   project's connection string.
-3. **One person only** runs migrations against it:
+### Getting access (one-time, per teammate)
+
+1. **Ask whoever administers the Neon project for the connection string.**
+   Get it via a secure channel (1Password, Slack DM, etc.) — **it must never
+   be pasted into a public channel, committed to git, or added to
+   `.env.example`.** `.env.example` only ever contains placeholders; your real
+   `.env` (which is gitignored) holds the actual secret.
+2. Open your local `backend/.env` (copy from `.env.example` first if you don't
+   have one yet) and set **both** of these to the connection string you were
+   given:
    ```
-   docker compose exec api alembic upgrade head
+   DATABASE_URL=postgresql+psycopg2://<user>:<password>@<host>/<db>?sslmode=require
+   DOCKER_DATABASE_URL=postgresql+psycopg2://<user>:<password>@<host>/<db>?sslmode=require
    ```
-   (or `.venv\Scripts\python -m alembic upgrade head` if running outside Docker)
-4. Everyone else runs the API pointed at the same URL:
+   `DATABASE_URL` is used when you run the API directly via `uvicorn`/venv;
+   `DOCKER_DATABASE_URL` is used when you run it via `docker compose` (see
+   `docker-compose.yml` — it overrides the local-`db`-container default).
+3. **Do not run migrations yourself.** The schema is already set up on the
+   shared database — running `alembic upgrade head` against Neon is a
+   one-time, one-person action (see "Project database admin" below), not a
+   per-teammate setup step.
+4. Run the API as usual:
+   - Via venv: `.venv\Scripts\python -m uvicorn app.main:app --reload`
    - Via Docker: `docker compose up --no-deps -d api` — the `--no-deps` flag
-     skips starting the local `db` container, since it isn't needed anymore.
-   - Via venv: `.venv\Scripts\python -m uvicorn app.main:app --reload` as usual.
+     is important here, it skips starting the local `db` container so it
+     can't silently shadow the shared one.
+5. Verify you're actually on the shared DB, not a stray local instance: log
+   in or register a test user, then ask a teammate to confirm they can see it
+   (e.g. via `GET /api/v1/admin/users` as an admin, or just by you both
+   hitting the same `/health` — if in doubt, check that `DATABASE_URL` in
+   your `.env` matches the shared string, not `localhost:5433`).
 
-See the comments in [.env.example](.env.example) for the exact variable names.
+### Connection string: pooled vs. direct
+
+Neon gives you two connection strings for the same database — check which
+one you were given:
+
+- **Direct** (host has no `-pooler` in it) — talks straight to Postgres.
+  Fine for one or two people, but Neon's direct-connection limit is small and
+  will be exhausted quickly once several teammates run the app at once.
+- **Pooled** (host contains `-pooler`, e.g.
+  `ep-xxxx-pooler.c-9.us-east-1.aws.neon.tech`) — routed through Neon's
+  built-in PgBouncer, supports far more concurrent connections. **Use this
+  one for day-to-day team development.** Grab it from the Neon dashboard
+  (it's labeled "Pooled connection").
+
+`app/database.py` automatically detects which kind you're using — it checks
+for `-pooler` in `DATABASE_URL` and switches SQLAlchemy's connection pool
+accordingly:
+
+- **Pooled URL** → SQLAlchemy uses `NullPool` (no pooling on our side —
+  correct, since Neon's PgBouncer already pools connections; stacking our
+  own pool on top of theirs causes connection-lifecycle bugs).
+- **Direct URL** → SQLAlchemy uses a tuned `QueuePool` (`DB_POOL_SIZE` /
+  `DB_MAX_OVERFLOW` / `DB_POOL_TIMEOUT` in `.env`), same as for local Postgres.
+
+You don't need to configure this yourself — just put the right connection
+string in `.env` and it works correctly either way.
+
+### Project database admin (whoever manages the Neon project)
+
+- Enable pgvector once per Neon project (usually already done, but if
+  starting a fresh project): `CREATE EXTENSION IF NOT EXISTS vector;` in the
+  Neon SQL editor.
+- Run migrations against the shared DB after pulling any new migration —
+  this should be done by one person, not everyone independently:
+  ```
+  .venv\Scripts\python -m alembic upgrade head
+  ```
+  (or `docker compose exec api alembic upgrade head` if running via Docker)
+- If the connection string is ever exposed (e.g. pasted somewhere it
+  shouldn't have been), rotate it from the Neon dashboard: your project →
+  **Settings → Reset password** — then redistribute the new string to the
+  team through a secure channel and have everyone update their `.env`.
+- Neon branching (a separate Postgres branch per PR/feature, cheap and
+  instant) is available if the team wants isolated environments instead of
+  one shared database — ask if you want this set up; it's not configured by
+  default here.
+
+### Running your own isolated local Postgres instead
+
+If you want to work fully offline, or don't want your experiments visible to
+the team, you can still use local Docker Postgres exactly as before — just
+leave `DATABASE_URL`/`DOCKER_DATABASE_URL` unset (or pointed at
+`localhost:5433`) and follow "Local setup" above. The two modes are mutually
+exclusive per person: whichever connection string is in your `.env` is where
+your requests go.
 
 ## Project layout
 
