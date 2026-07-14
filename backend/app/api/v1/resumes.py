@@ -10,7 +10,7 @@ from app.models.candidate import CandidateProfile
 from app.models.resume import Resume
 from app.models.user import User, UserRole
 from app.schemas.resume import ResumeOut, ResumeParsedDataOut
-from app.services.candidate_profile import recompute_completeness
+from app.services.candidate_profile import recompute_completeness, recompute_total_experience_years
 from app.services.resume_parsing import parse_resume
 from app.services.resume_parsing.extractor import extract_text
 from app.services.storage import storage_service
@@ -57,6 +57,7 @@ def _process_resume(resume_id: uuid.UUID) -> None:
             if candidate:
                 _apply_parsed_data_to_profile(candidate, parsed_data)
                 recompute_completeness(candidate)
+                recompute_total_experience_years(candidate)
 
             db.commit()
         except Exception as exc:  # noqa: BLE001

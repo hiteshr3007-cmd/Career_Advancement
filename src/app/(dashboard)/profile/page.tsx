@@ -128,6 +128,7 @@ function ProfileHeader({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     phone: profile.phone ?? "",
@@ -185,6 +186,25 @@ function ProfileHeader({
     }
   };
 
+  const handleResetExperience = async () => {
+    setIsResetting(true);
+    setError(null);
+    try {
+      const updated = await candidateService.recalculateExperienceYears();
+      onUpdated(updated);
+      setForm((prev) => ({
+        ...prev,
+        total_experience_years: updated.total_experience_years?.toString() ?? "",
+      }));
+    } catch (err) {
+      setError(
+        extractApiError(err, "Couldn't recalculate experience. Please try again.")
+      );
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   if (!isEditing) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -212,6 +232,7 @@ function ProfileHeader({
               {profile.total_experience_years != null && (
                 <Badge variant="outline">
                   {profile.total_experience_years} yrs experience
+                  {!profile.experience_years_manual_override && " (calculated)"}
                 </Badge>
               )}
             </div>
@@ -296,6 +317,21 @@ function ProfileHeader({
               setForm({ ...form, total_experience_years: e.target.value })
             }
           />
+          <p className="mt-1 text-xs text-slate-400">
+            {profile.experience_years_manual_override
+              ? "You've set this manually, so it won't be recalculated from your experience entries."
+              : "Calculated automatically from your experience entries below. Enter a value to override it."}
+          </p>
+          {profile.experience_years_manual_override && (
+            <button
+              type="button"
+              onClick={handleResetExperience}
+              disabled={isResetting}
+              className="mt-1 text-xs font-medium text-indigo-600 hover:underline disabled:opacity-50"
+            >
+              {isResetting ? "Recalculating..." : "Reset to auto-calculated"}
+            </button>
+          )}
         </Field>
       </div>
 
@@ -482,7 +518,7 @@ function ExperienceSection({
     setIsAdding(true);
     setError(null);
     try {
-      const experience = await candidateService.addExperience({
+      await candidateService.addExperience({
         title: form.title || null,
         company: form.company || null,
         industry: form.industry || null,
@@ -491,7 +527,10 @@ function ExperienceSection({
         is_current: form.is_current,
         description: form.description || null,
       });
-      onUpdated({ ...profile, experiences: [...profile.experiences, experience] });
+      // Adding experience recomputes total_experience_years server-side (unless
+      // manually overridden), so refetch the whole profile rather than patching
+      // experiences[] locally — otherwise the header's years badge goes stale.
+      onUpdated(await candidateService.getMyProfile());
       resetForm();
       setShowForm(false);
     } catch (err) {
@@ -506,10 +545,9 @@ function ExperienceSection({
     setError(null);
     try {
       await candidateService.deleteExperience(experience.id);
-      onUpdated({
-        ...profile,
-        experiences: profile.experiences.filter((e) => e.id !== experience.id),
-      });
+      // Same as add: deletion re-derives total_experience_years, so pull the
+      // authoritative profile instead of just filtering experiences[] locally.
+      onUpdated(await candidateService.getMyProfile());
     } catch (err) {
       setError(extractApiError(err, "Couldn't remove that entry. Please try again."));
     } finally {

@@ -38,6 +38,7 @@ export interface SkillOut {
     current_designation?: string | null;
     experience_level?: string | null;
     total_experience_years?: number | null;
+    experience_years_manual_override: boolean;
     industry?: string | null;
     functional_area?: string | null;
     career_stage?: string | null;

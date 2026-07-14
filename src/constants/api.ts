@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
       EDUCATION_ITEM: (educationId: string) => `/candidates/me/education/${educationId}`,
       EXPERIENCE: "/candidates/me/experience",
       EXPERIENCE_ITEM: (experienceId: string) => `/candidates/me/experience/${experienceId}`,
+      EXPERIENCE_RECALCULATE: "/candidates/me/experience/recalculate",
       LIST: "/candidates",
       DETAIL: (candidateId: string) => `/candidates/${candidateId}`,
     },

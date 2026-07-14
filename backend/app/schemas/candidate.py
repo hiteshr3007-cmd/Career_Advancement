@@ -80,6 +80,7 @@ class CandidateProfileOut(BaseModel):
     current_designation: str | None
     experience_level: str | None
     total_experience_years: float | None
+    experience_years_manual_override: bool
     industry: str | None
     functional_area: str | None
     career_stage: str | None

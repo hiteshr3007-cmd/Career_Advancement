@@ -26,6 +26,10 @@ class CandidateProfile(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     current_designation: Mapped[str | None] = mapped_column(String(255))
     experience_level: Mapped[str | None] = mapped_column(String(50))  # entry/mid/senior/lead/executive
     total_experience_years: Mapped[float | None] = mapped_column(Float)
+    # True once the candidate has explicitly typed a value into the profile
+    # form; while False, total_experience_years is recomputed automatically
+    # from `experiences` whenever an entry is added/removed.
+    experience_years_manual_override: Mapped[bool] = mapped_column(Boolean, default=False)
     industry: Mapped[str | None] = mapped_column(String(150))
     functional_area: Mapped[str | None] = mapped_column(String(150))
     career_stage: Mapped[str | None] = mapped_column(String(100))
