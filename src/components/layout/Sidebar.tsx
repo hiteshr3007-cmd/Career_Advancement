@@ -43,6 +43,15 @@ function IconProfile() {
     </svg>
   );
 }
+function IconBenchmark() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1" />
+    </svg>
+  );
+}
 function IconGap() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -111,6 +120,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: <IconDashboard /> },
   { label: "Candidates", href: "/candidates", icon: <IconCandidates />, visible: isViewerRole },
+  { label: "Benchmarks", href: "/benchmarks", icon: <IconBenchmark /> },
   { label: "Admin", href: "/admin", icon: <IconAdmin />, visible: isAdmin },
   { label: "Resume Upload", href: "/upload", icon: <IconUpload />, visible: isCandidate },
   { label: "Candidate Profile", href: "/profile", icon: <IconProfile />, visible: isCandidate },

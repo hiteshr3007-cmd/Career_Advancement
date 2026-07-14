@@ -32,4 +32,9 @@ export const API_ENDPOINTS = {
       USER_ACTIVATE: (userId: string) => `/admin/users/${userId}/activate`,
       USER_DEACTIVATE: (userId: string) => `/admin/users/${userId}/deactivate`,
     },
+
+    BENCHMARK: {
+      LIST: "/benchmarks",
+      DETAIL: (benchmarkId: string) => `/benchmarks/${benchmarkId}`,
+    },
   };
