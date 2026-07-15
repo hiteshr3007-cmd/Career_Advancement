@@ -1,18 +1,22 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Award,
   Briefcase,
   ChevronLeft,
   ChevronRight,
   GraduationCap,
+  RefreshCw,
   Search,
+  Target,
   User,
   X,
 } from "lucide-react";
 
 import AccessRestricted from "@/components/layout/AccessRestricted";
+import { MatchCard } from "@/components/matching/MatchCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,9 +30,13 @@ import {
 } from "@/components/ui/table";
 import { extractApiError } from "@/lib/api";
 import { isViewerRole } from "@/lib/roles";
+import benchmarkService from "@/services/benchmark.service";
 import candidateService from "@/services/candidate.service";
+import matchingService from "@/services/matching.service";
 import { useAuth } from "@/store/auth-context";
+import { Benchmark } from "@/types/benchmark";
 import { CandidateSearchFilters, CandidateSearchResult } from "@/types/candidate";
+import { MatchResult } from "@/types/matching";
 
 const EXPERIENCE_LEVELS = ["entry", "mid", "senior", "lead", "executive"];
 const PAGE_SIZE = 20;
@@ -66,7 +74,14 @@ export default function CandidatesPage() {
 }
 
 function CandidateDirectory() {
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  // The topbar's global search hands off a skill term via ?skill=... so the
+  // directory opens pre-filtered instead of the user having to retype it.
+  const searchParams = useSearchParams();
+  const urlSkill = searchParams.get("skill") ?? "";
+  const [filters, setFilters] = useState<CandidateSearchFilters>(() => ({
+    ...EMPTY_FILTERS,
+    skill: urlSkill,
+  }));
   const [results, setResults] = useState<CandidateSearchResult[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
@@ -98,32 +113,17 @@ function CandidateDirectory() {
     }
   };
 
+  // Re-applies whenever the topbar's global search sends a new ?skill=... —
+  // including when we're already sitting on this page, not just on first
+  // mount (a plain mount-only effect would miss a second search).
   useEffect(() => {
-    let isMounted = true;
-
-    candidateService
-      .searchCandidates({ ...cleanFilters(EMPTY_FILTERS), limit: PAGE_SIZE, offset: 0 })
-      .then((page) => {
-        if (isMounted) {
-          setResults(page.items);
-          setTotal(page.total);
-          setOffset(page.offset);
-          setError(null);
-        }
-      })
-      .catch((err) => {
-        if (isMounted) {
-          setError(extractApiError(err, "Couldn't load candidates. Please try again."));
-        }
-      })
-      .finally(() => {
-        if (isMounted) setIsLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
+    const applyUrlSkill = async () => {
+      setFilters((prev) => ({ ...prev, skill: urlSkill }));
+      await runSearch({ ...EMPTY_FILTERS, skill: urlSkill }, 0);
     };
-  }, []);
+    applyUrlSkill();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlSkill]);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -330,6 +330,68 @@ function CandidateDetailModal({
   candidate: CandidateSearchResult;
   onClose: () => void;
 }) {
+  const [matches, setMatches] = useState<MatchResult[]>([]);
+  const [benchmarks, setBenchmarks] = useState<Benchmark[]>([]);
+  const [isLoadingMatches, setIsLoadingMatches] = useState(true);
+  const [isComputing, setIsComputing] = useState(false);
+  const [matchError, setMatchError] = useState<string | null>(null);
+
+  const benchmarkById = useMemo(() => {
+    const map = new Map<string, Benchmark>();
+    benchmarks.forEach((b) => map.set(b.id, b));
+    return map;
+  }, [benchmarks]);
+
+  const sortedMatches = useMemo(
+    () => [...matches].sort((a, b) => b.match_score - a.match_score),
+    [matches]
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    Promise.all([
+      matchingService.getCandidateMatches(candidate.id),
+      benchmarkService.listBenchmarks({ limit: 200 }),
+    ])
+      .then(([matchData, benchmarkData]) => {
+        if (!isMounted) return;
+        setMatches(matchData);
+        setBenchmarks(benchmarkData);
+        setMatchError(null);
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        setMatchError(extractApiError(err, "Couldn't load benchmark matches."));
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingMatches(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [candidate.id]);
+
+  const handleCompute = async () => {
+    setIsComputing(true);
+    setMatchError(null);
+    try {
+      const computed = await matchingService.computeCandidateMatches(candidate.id);
+      setMatches((prev) => {
+        const byBenchmark = new Map(prev.map((m) => [m.benchmark_id, m]));
+        computed.forEach((m) => byBenchmark.set(m.benchmark_id, m));
+        return Array.from(byBenchmark.values());
+      });
+      if (computed.length === 0) {
+        setMatchError("No active benchmarks matched this candidate's industry.");
+      }
+    } catch (err) {
+      setMatchError(extractApiError(err, "Couldn't compute matches. Please try again."));
+    } finally {
+      setIsComputing(false);
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
@@ -442,6 +504,44 @@ function CandidateDetailModal({
             </ul>
           ) : (
             <p className="mt-2 text-sm text-slate-500">No education on file.</p>
+          )}
+        </section>
+
+        <section className="mt-6">
+          <div className="flex items-center justify-between gap-4">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+              <Target size={16} className="text-indigo-600" />
+              Benchmark Matches
+            </h3>
+            <Button type="button" size="sm" onClick={handleCompute} disabled={isComputing}>
+              <RefreshCw size={14} data-icon="inline-start" />
+              {isComputing ? "Computing..." : "Compute matches"}
+            </Button>
+          </div>
+
+          {matchError && (
+            <p className="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-600">
+              {matchError}
+            </p>
+          )}
+
+          {isLoadingMatches ? (
+            <p className="mt-2 text-sm text-slate-500">Loading matches...</p>
+          ) : sortedMatches.length === 0 ? (
+            <p className="mt-2 text-sm text-slate-500">
+              No matches yet. Click &quot;Compute matches&quot; to score this candidate
+              against active benchmarks.
+            </p>
+          ) : (
+            <div className="mt-3 space-y-4">
+              {sortedMatches.map((match) => (
+                <MatchCard
+                  key={match.id}
+                  match={match}
+                  benchmark={benchmarkById.get(match.benchmark_id)}
+                />
+              ))}
+            </div>
           )}
         </section>
       </div>
