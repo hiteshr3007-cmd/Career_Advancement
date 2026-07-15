@@ -10,72 +10,80 @@ import {
   YAxis,
 } from "recharts";
 
-const data = [
-  { day: "Mon", resumes: 18 },
-  { day: "Tue", resumes: 24 },
-  { day: "Wed", resumes: 21 },
-  { day: "Thu", resumes: 35 },
-  { day: "Fri", resumes: 42 },
-  { day: "Sat", resumes: 38 },
-  { day: "Sun", resumes: 46 },
-];
+interface AnalyticsChartProps {
+  title: string;
+  subtitle: string;
+  data: { label: string; value: number }[];
+  emptyMessage: string;
+}
 
-export default function AnalyticsChart() {
+export default function AnalyticsChart({
+  title,
+  subtitle,
+  data,
+  emptyMessage,
+}: AnalyticsChartProps) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-slate-900">
-          Resume Analytics
+          {title}
         </h2>
 
         <p className="text-sm text-slate-500">
-          AI processed resumes over the last 7 days
+          {subtitle}
         </p>
       </div>
 
-      <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
-            <defs>
-              <linearGradient
-                id="resumeGradient"
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="5%"
-                  stopColor="#4F46E5"
-                  stopOpacity={0.4}
-                />
+      {data.length === 0 ? (
+        <div className="flex h-80 items-center justify-center text-center text-sm text-slate-400">
+          {emptyMessage}
+        </div>
+      ) : (
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data}>
+              <defs>
+                <linearGradient
+                  id="resumeGradient"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor="#4F46E5"
+                    stopOpacity={0.4}
+                  />
 
-                <stop
-                  offset="95%"
-                  stopColor="#4F46E5"
-                  stopOpacity={0}
-                />
-              </linearGradient>
-            </defs>
+                  <stop
+                    offset="95%"
+                    stopColor="#4F46E5"
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+              </defs>
 
-            <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" />
 
-            <XAxis dataKey="day" />
+              <XAxis dataKey="label" />
 
-            <YAxis />
+              <YAxis allowDecimals={false} />
 
-            <Tooltip />
+              <Tooltip />
 
-            <Area
-              type="monotone"
-              dataKey="resumes"
-              stroke="#4F46E5"
-              strokeWidth={3}
-              fill="url(#resumeGradient)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="#4F46E5"
+                strokeWidth={3}
+                fill="url(#resumeGradient)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 }

@@ -48,13 +48,19 @@ class UserLogin(BaseModel):
 
 
 class TokenResponse(BaseModel):
+    """Kept for internal use (building the refresh cookie); the access-only
+    shape below is what actually goes out over the wire — see NEW-2."""
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
 
 
-class RefreshRequest(BaseModel):
-    refresh_token: str
+class AccessTokenResponse(BaseModel):
+    """What /auth/login, /auth/refresh, and /auth/register-login actually
+    return. The refresh token travels only as an httpOnly cookie (NEW-2), so
+    it's deliberately absent from this body."""
+    access_token: str
+    token_type: str = "bearer"
 
 
 class PasswordResetRequest(BaseModel):

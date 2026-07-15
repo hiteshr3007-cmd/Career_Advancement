@@ -14,6 +14,9 @@ export const API_BASE_URL =
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  // The refresh token travels as an httpOnly cookie (NEW-2 hardening), not a
+  // header, so the browser needs to send/receive cookies cross-origin.
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -45,31 +48,20 @@ let refreshPromise: Promise<string> | null = null;
 function clearSession() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-  localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
   localStorage.removeItem(STORAGE_KEYS.USER);
 }
 
 async function refreshAccessToken(): Promise<string> {
-  const refreshToken =
-    typeof window !== "undefined"
-      ? localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
-      : null;
-
-  if (!refreshToken) {
-    throw new Error("No refresh token available");
-  }
-
-  // Bare axios (not `api`) so this call skips the interceptors below.
+  // Bare axios (not `api`) so this call skips the interceptors below. The
+  // refresh token itself is an httpOnly cookie the browser attaches
+  // automatically — there's nothing to read from localStorage or send here.
   const { data } = await axios.post(
     `${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
-    { refresh_token: refreshToken },
-    { headers: { "Content-Type": "application/json" } }
+    null,
+    { withCredentials: true }
   );
 
   localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.access_token);
-  if (data.refresh_token) {
-    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, data.refresh_token);
-  }
   return data.access_token as string;
 }
 

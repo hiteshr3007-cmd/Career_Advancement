@@ -141,67 +141,88 @@ const navItems: NavItem[] = [
 
 const settingsItem: NavItem = { label: "Settings", href: "/settings", icon: <IconSettings /> };
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
   const visibleItems = navItems.filter((item) => !item.visible || item.visible(user?.role));
 
   return (
-    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-slate-800 bg-slate-900 text-slate-300">
-      <div className="flex h-16 items-center px-6 border-b border-slate-800">
-        <span className="text-lg font-semibold text-white">Career Advancement</span>
-      </div>
+    <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-slate-900/50 md:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {visibleItems.map((item) => {
-          const isActive = pathname === item.href;
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex h-screen w-64 flex-col border-r border-slate-800 bg-slate-900 text-slate-300 transition-transform duration-200 md:sticky md:top-0 md:z-auto md:shrink-0 md:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex h-16 items-center px-6 border-b border-slate-800">
+          <span className="text-lg font-semibold text-white">Career Advancement</span>
+        </div>
 
-          if (item.disabled) {
+        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+          {visibleItems.map((item) => {
+            const isActive = pathname === item.href;
+
+            if (item.disabled) {
+              return (
+                <div
+                  key={item.label}
+                  className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-400"
+                  title="Coming soon"
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                  <span className="ml-auto rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-slate-300">
+                    Soon
+                  </span>
+                </div>
+              );
+            }
+
             return (
-              <div
+              <Link
                 key={item.label}
-                className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-600"
-                title="Coming soon"
+                href={item.href}
+                onClick={onClose}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                  isActive
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
-                <span className="ml-auto rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-slate-500">
-                  Soon
-                </span>
-              </div>
+              </Link>
             );
-          }
+          })}
+        </nav>
 
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                isActive
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
-              }`}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="border-t border-slate-800 px-3 py-4">
-        <Link
-          href={settingsItem.href}
-          className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-            pathname === settingsItem.href
-              ? "bg-indigo-600 text-white"
-              : "text-slate-300 hover:bg-slate-800 hover:text-white"
-          }`}
-        >
-          {settingsItem.icon}
-          <span>{settingsItem.label}</span>
-        </Link>
-      </div>
-    </aside>
+        <div className="border-t border-slate-800 px-3 py-4">
+          <Link
+            href={settingsItem.href}
+            onClick={onClose}
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+              pathname === settingsItem.href
+                ? "bg-indigo-600 text-white"
+                : "text-slate-300 hover:bg-slate-800 hover:text-white"
+            }`}
+          >
+            {settingsItem.icon}
+            <span>{settingsItem.label}</span>
+          </Link>
+        </div>
+      </aside>
+    </>
   );
 }

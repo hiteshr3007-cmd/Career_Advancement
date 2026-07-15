@@ -4,7 +4,7 @@ import { TrendingUp } from "lucide-react";
 interface StatsCardProps {
   title: string;
   value: string;
-  change: string;
+  change?: string;
   subtitle?: string;
   icon: ReactNode;
 }
@@ -23,10 +23,12 @@ export default function StatsCard({
           {icon}
         </div>
 
-        <div className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-600">
-          <TrendingUp size={14} />
-          {change}
-        </div>
+        {change && (
+          <div className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-600">
+            <TrendingUp size={14} />
+            {change}
+          </div>
+        )}
       </div>
 
       <div className="mt-6">
@@ -38,19 +40,11 @@ export default function StatsCard({
           {value}
         </h2>
 
-        <p className="mt-2 text-sm text-slate-400">
-          {subtitle}
-        </p>
-      </div>
-
-      <div className="mt-6 flex items-end gap-1">
-        {[30, 45, 40, 65, 55, 75, 90].map((height, index) => (
-          <div
-            key={index}
-            style={{ height: `${height / 2}px` }}
-            className="w-2 rounded-full bg-indigo-500/80 transition-all duration-300 group-hover:bg-indigo-600"
-          />
-        ))}
+        {subtitle && (
+          <p className="mt-2 text-sm text-slate-400">
+            {subtitle}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -12,6 +12,12 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7
     jwt_algorithm: str = "HS256"
 
+    # The refresh token is set as an httpOnly cookie (NEW-2 hardening) rather
+    # than returned in the JSON body, so page scripts can't read it. `Secure`
+    # requires HTTPS, which local dev over http doesn't have — flip this on in
+    # production via COOKIE_SECURE=true.
+    cookie_secure: bool = False
+
     database_url: str = "postgresql+psycopg2://platform:platform@localhost:5433/career_platform"
 
     # Connection-pool sizing (BK-1). Defaults raised well above SQLAlchemy's

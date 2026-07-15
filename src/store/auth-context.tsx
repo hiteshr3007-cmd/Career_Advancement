@@ -118,9 +118,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setPermissionsChanged(false);
   }, []);
 
-  const persistTokens = (accessToken: string, refreshToken: string) => {
+  const persistTokens = (accessToken: string) => {
     localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
     setHasToken(true);
   };
 
@@ -132,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (data: LoginRequest) => {
     try {
       const tokens = await authService.login(data);
-      persistTokens(tokens.access_token, tokens.refresh_token);
+      persistTokens(tokens.access_token);
 
       const me = await authService.getMe();
       persistUser(toAuthUser(me));
@@ -163,13 +162,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [login]);
 
   const logout = useCallback(() => {
-    const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-    if (refreshToken) {
-      // Best-effort server-side revocation; don't block the UI on it.
-      authService.logout(refreshToken).catch(() => {});
-    }
+    // Best-effort server-side revocation (cookie carries the refresh token);
+    // don't block the UI on it.
+    authService.logout().catch(() => {});
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER);
     setHasToken(false);
     setUser(null);

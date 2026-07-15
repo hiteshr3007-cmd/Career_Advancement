@@ -1,7 +1,22 @@
-import { Upload, Users, Sparkles } from "lucide-react";
+import { ReactNode } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function WelcomeCard() {
+export interface WelcomeAction {
+  label: string;
+  icon: ReactNode;
+  href?: string;
+  disabled?: boolean;
+  disabledReason?: string;
+}
+
+interface WelcomeCardProps {
+  name?: string;
+  subtitle: ReactNode;
+  actions: WelcomeAction[];
+}
+
+export default function WelcomeCard({ name, subtitle, actions }: WelcomeCardProps) {
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
@@ -26,51 +41,41 @@ export default function WelcomeCard() {
             </p>
 
             <h1 className="mt-2 text-4xl font-bold tracking-tight">
-              Welcome back, Hitesh 👋
+              Welcome back{name ? `, ${name}` : ""} 👋
             </h1>
 
             <p className="mt-3 max-w-xl text-indigo-100">
-              Your AI Command Center analyzed
-              <span className="font-semibold text-white">
-                {" "}24 resumes
-              </span>
-              {" "}today and identified
-              <span className="font-semibold text-white">
-                {" "}18 high-potential candidates.
-              </span>
+              {subtitle}
             </p>
 
-          </div>
-
-          <div className="hidden rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-300 lg:flex">
-            🟢 AI Engine Online
           </div>
 
         </div>
 
         <div className="flex flex-wrap gap-4">
-
-          <Button className="gap-2 bg-white text-slate-900 hover:bg-slate-100">
-            <Upload size={18} />
-            Upload Resume
-          </Button>
-
-          <Button
-            variant="secondary"
-            className="gap-2 bg-white/10 text-white hover:bg-white/20"
-          >
-            <Users size={18} />
-            View Candidates
-          </Button>
-
-          <Button
-            variant="secondary"
-            className="gap-2 bg-white/10 text-white hover:bg-white/20"
-          >
-            <Sparkles size={18} />
-            Generate Roadmap
-          </Button>
-
+          {actions.map((action) =>
+            action.disabled ? (
+              <span
+                key={action.label}
+                title={action.disabledReason ?? "Coming soon"}
+                className="flex cursor-not-allowed items-center gap-2 rounded-lg bg-white/5 px-4 py-2 text-sm font-medium text-white/40"
+              >
+                {action.icon}
+                {action.label}
+              </span>
+            ) : (
+              <Button
+                key={action.label}
+                render={<Link href={action.href ?? "#"} />}
+                nativeButton={false}
+                variant="secondary"
+                className="gap-2 bg-white/10 text-white hover:bg-white/20"
+              >
+                {action.icon}
+                {action.label}
+              </Button>
+            )
+          )}
         </div>
 
       </div>

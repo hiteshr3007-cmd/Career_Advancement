@@ -21,7 +21,11 @@ export default function Layout({
   }, [isLoading, isAuthenticated, router]);
 
   if (isLoading || !isAuthenticated) {
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-600" />
+      </div>
+    );
   }
 
   return <DashboardLayout>{children}</DashboardLayout>;

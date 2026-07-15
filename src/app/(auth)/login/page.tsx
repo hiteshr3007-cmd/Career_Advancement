@@ -24,7 +24,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await login({ email, password });
+      await login({ email: email.trim(), password });
       router.replace("/dashboard");
     } catch (err) {
       setError(
@@ -83,7 +83,7 @@ export default function LoginPage() {
             type="password"
             required
             autoComplete="current-password"
-            placeholder="••••••••"
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />

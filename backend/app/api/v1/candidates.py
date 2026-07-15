@@ -253,7 +253,7 @@ def search_candidates(
         joinedload(CandidateProfile.skills),
         joinedload(CandidateProfile.education),
         joinedload(CandidateProfile.experiences),
-    )
+    ).order_by(CandidateProfile.created_at.desc())
     profiles = query.offset(offset).limit(limit).all()
 
     return CandidateSearchPage(

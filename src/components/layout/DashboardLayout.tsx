@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { X } from "lucide-react";
 
 import { useAuth } from "@/store/auth-context";
@@ -15,13 +16,14 @@ export default function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
   const { permissionsChanged, dismissPermissionsChanged, user } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      <div className="flex flex-1 flex-col">
-        <Topbar />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Topbar onMenuClick={() => setIsSidebarOpen(true)} />
 
         <main className="flex-1 p-6 bg-gray-50">
           {permissionsChanged && (

@@ -2,7 +2,7 @@ import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -19,10 +19,9 @@ from app.database import get_db
 from app.models.candidate import CandidateProfile
 from app.models.user import PasswordResetToken, RefreshToken, User, UserRole
 from app.schemas.auth import (
+    AccessTokenResponse,
     PasswordResetConfirm,
     PasswordResetRequest,
-    RefreshRequest,
-    TokenResponse,
     UserLogin,
     UserOut,
     UserRegister,
@@ -30,8 +29,25 @@ from app.schemas.auth import (
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
+# Scoped to /auth so the cookie isn't sent on every API call, just the
+# handful of auth endpoints that need it (NEW-2 hardening).
+REFRESH_COOKIE_NAME = "refresh_token"
+REFRESH_COOKIE_PATH = "/api/v1/auth"
 
-def _issue_tokens(db: Session, user: User) -> TokenResponse:
+
+def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
+    response.set_cookie(
+        key=REFRESH_COOKIE_NAME,
+        value=refresh_token,
+        httponly=True,
+        secure=settings.cookie_secure,
+        samesite="lax",
+        max_age=settings.refresh_token_expire_days * 24 * 60 * 60,
+        path=REFRESH_COOKIE_PATH,
+    )
+
+
+def _issue_tokens(db: Session, user: User, response: Response) -> AccessTokenResponse:
     access_token = create_access_token(str(user.id), user.role)
     refresh_token = create_refresh_token(str(user.id), user.role)
 
@@ -44,7 +60,8 @@ def _issue_tokens(db: Session, user: User) -> TokenResponse:
         )
     )
     db.commit()
-    return TokenResponse(access_token=access_token, refresh_token=refresh_token)
+    _set_refresh_cookie(response, refresh_token)
+    return AccessTokenResponse(access_token=access_token)
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
@@ -79,8 +96,12 @@ def register(payload: UserRegister, db: Session = Depends(get_db)):
     return user
 
 
-@router.post("/login", response_model=TokenResponse)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@router.post("/login", response_model=AccessTokenResponse)
+def login(
+    response: Response,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
+):
     user = db.query(User).filter(User.email == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
@@ -89,20 +110,24 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is deactivated")
 
-    return _issue_tokens(db, user)
+    return _issue_tokens(db, user, response)
 
 
-@router.post("/refresh", response_model=TokenResponse)
-def refresh(payload: RefreshRequest, db: Session = Depends(get_db)):
+@router.post("/refresh", response_model=AccessTokenResponse)
+def refresh(request: Request, response: Response, db: Session = Depends(get_db)):
+    refresh_token = request.cookies.get(REFRESH_COOKIE_NAME)
+    if not refresh_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing refresh token")
+
     try:
-        token_payload = decode_token(payload.refresh_token)
+        token_payload = decode_token(refresh_token)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token") from exc
 
     if token_payload.get("type") != "refresh":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
 
-    stored = db.query(RefreshToken).filter(RefreshToken.token == payload.refresh_token).first()
+    stored = db.query(RefreshToken).filter(RefreshToken.token == refresh_token).first()
     if not stored or stored.revoked or stored.expires_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token expired or revoked")
 
@@ -113,15 +138,18 @@ def refresh(payload: RefreshRequest, db: Session = Depends(get_db)):
     stored.revoked = True
     db.commit()
 
-    return _issue_tokens(db, user)
+    return _issue_tokens(db, user, response)
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-def logout(payload: RefreshRequest, db: Session = Depends(get_db)):
-    stored = db.query(RefreshToken).filter(RefreshToken.token == payload.refresh_token).first()
-    if stored:
-        stored.revoked = True
-        db.commit()
+def logout(request: Request, response: Response, db: Session = Depends(get_db)):
+    refresh_token = request.cookies.get(REFRESH_COOKIE_NAME)
+    if refresh_token:
+        stored = db.query(RefreshToken).filter(RefreshToken.token == refresh_token).first()
+        if stored:
+            stored.revoked = True
+            db.commit()
+    response.delete_cookie(REFRESH_COOKIE_NAME, path=REFRESH_COOKIE_PATH)
     return None
 
 

@@ -23,7 +23,8 @@ const authService = {
 
     // Backend login uses OAuth2PasswordRequestForm — it expects a
     // x-www-form-urlencoded body with `username` (the email) and `password`,
-    // and returns { access_token, refresh_token, token_type }.
+    // and returns { access_token, token_type }. The refresh token is set as
+    // an httpOnly cookie by the backend, not returned in this body.
     login: async (data: LoginRequest): Promise<AuthResponse> => {
         const form = new URLSearchParams();
         form.append("username", data.email);
@@ -40,8 +41,10 @@ const authService = {
         return response.data;
     },
 
-    logout: async (refreshToken: string): Promise<void> => {
-        await api.post(API_ENDPOINTS.AUTH.LOGOUT, { refresh_token: refreshToken });
+    // The refresh token travels as an httpOnly cookie, so the browser attaches
+    // it automatically — nothing to pass here.
+    logout: async (): Promise<void> => {
+        await api.post(API_ENDPOINTS.AUTH.LOGOUT);
     },
 
     forgotPassword: async (data: ForgotPasswordRequest) => {

@@ -21,12 +21,12 @@ export interface RegisterRequest {
     role?: string;
   }
 
-  // Matches the backend TokenResponse (schemas/auth.py). Login/refresh return
-  // both tokens; register returns a UserOut instead (no tokens) — see
-  // auth.service.ts for how each is handled.
+  // Matches the backend AccessTokenResponse (schemas/auth.py). The refresh
+  // token never appears here — it's set as an httpOnly cookie the backend
+  // manages directly (NEW-2 hardening). Register returns a UserOut instead
+  // (no tokens) — see auth.service.ts for how each is handled.
   export interface AuthResponse {
     access_token: string;
-    refresh_token: string;
     token_type?: string;
   }
 

@@ -54,7 +54,7 @@ export default function ResumeUploader({
     setMessage(null);
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (event: React.DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setIsDragging(false);
 
@@ -71,7 +71,9 @@ export default function ResumeUploader({
     try {
       const uploaded = await resumeService.uploadResume(selectedFile);
       setStatus("success");
-      setMessage("Resume uploaded successfully.");
+      setMessage(
+        "Upload received — we're analyzing it now. Check the status below; you'll see if anything needs a re-upload."
+      );
       onUploaded?.(uploaded);
     } catch (err) {
       setStatus("error");
@@ -88,7 +90,22 @@ export default function ResumeUploader({
 
   return (
     <div className="space-y-4">
-      <div
+      <input
+        ref={inputRef}
+        type="file"
+        aria-label="Resume file"
+        accept={ACCEPTED_EXTENSIONS}
+        className="hidden"
+        tabIndex={-1}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFile(file);
+        }}
+      />
+
+      <button
+        type="button"
+        aria-label="Choose a resume file to upload"
         onDragOver={(e) => {
           e.preventDefault();
           setIsDragging(true);
@@ -96,23 +113,12 @@ export default function ResumeUploader({
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
-        className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-12 text-center transition-colors ${
+        className={`flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-12 text-center transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30 ${
           isDragging
             ? "border-indigo-400 bg-indigo-50"
             : "border-slate-200 bg-slate-50 hover:border-indigo-300 hover:bg-indigo-50/50"
         }`}
       >
-        <input
-          ref={inputRef}
-          type="file"
-          accept={ACCEPTED_EXTENSIONS}
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleFile(file);
-          }}
-        />
-
         {selectedFile ? (
           <FileText className="text-indigo-600" size={36} />
         ) : (
@@ -136,7 +142,7 @@ export default function ResumeUploader({
             </p>
           </div>
         )}
-      </div>
+      </button>
 
       {message && (
         <div
