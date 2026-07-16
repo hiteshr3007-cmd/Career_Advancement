@@ -19,11 +19,11 @@ async function buildCandidateNotifications(): Promise<NotificationItem[]> {
     matchingService.getMyMatches().catch(() => []),
   ]);
 
-  if (profile && profile.profile_completeness < 100) {
+  if (profile && profile.profile_completeness < 1) {
     items.push({
       id: "profile-incomplete",
       tone: "warning",
-      title: `Profile ${Math.round(profile.profile_completeness)}% complete`,
+      title: `Profile ${Math.round(profile.profile_completeness * 100)}% complete`,
       description: "Fill in missing details to improve your match quality.",
       href: "/profile",
     });

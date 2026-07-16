@@ -221,7 +221,7 @@ export default function ViewerDashboard() {
         />
         <StatsCard
           title="Avg. Profile Completeness"
-          value={avgCompleteness != null ? `${Math.round(avgCompleteness)}%` : "—"}
+          value={avgCompleteness != null ? `${Math.round(avgCompleteness * 100)}%` : "—"}
           subtitle={isSampled ? `Across ${results.length} sampled candidates` : "Across your talent pool"}
           icon={<Award size={24} />}
         />

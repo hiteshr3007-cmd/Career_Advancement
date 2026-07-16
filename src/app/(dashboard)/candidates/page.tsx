@@ -168,6 +168,7 @@ function CandidateDirectory() {
           onChange={(e) => setFilters({ ...filters, functional_area: e.target.value })}
         />
         <select
+          aria-label="Experience level"
           className="h-9 w-full rounded-3xl border border-transparent bg-input/50 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
           value={filters.experience_level}
           onChange={(e) => setFilters({ ...filters, experience_level: e.target.value })}

@@ -145,14 +145,14 @@ export default function CandidateDashboard() {
     });
   }
 
-  if (profile.profile_completeness < 100) {
+  if (profile.profile_completeness < 1) {
     insights.push({
       id: "completeness",
       icon: <UserIcon className="text-sky-500" size={20} />,
       title: "Profile completeness",
       description: (
         <>
-          Your profile is <span className="font-medium text-sky-600">{profile.profile_completeness}%</span> complete.
+          Your profile is <span className="font-medium text-sky-600">{Math.round(profile.profile_completeness * 100)}%</span> complete.
           Add more skills, education, or experience to improve your matches.
         </>
       ),
@@ -173,7 +173,7 @@ export default function CandidateDashboard() {
         subtitle={
           <>
             Your profile is{" "}
-            <span className="font-semibold text-white">{profile.profile_completeness}% complete</span>
+            <span className="font-semibold text-white">{Math.round(profile.profile_completeness * 100)}% complete</span>
             {resumes.length > 0 && (
               <>
                 {" "}with <span className="font-semibold text-white">{resumes.length}</span> resume
@@ -205,7 +205,7 @@ export default function CandidateDashboard() {
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
         <StatsCard
           title="Profile Completeness"
-          value={`${profile.profile_completeness}%`}
+          value={`${Math.round(profile.profile_completeness * 100)}%`}
           subtitle="Keep your profile up to date"
           icon={<UserIcon size={24} />}
         />
