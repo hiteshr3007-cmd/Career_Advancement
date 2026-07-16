@@ -102,7 +102,9 @@ def add_skill(
 ):
     profile = _get_own_profile(db, current_user)
     skill = CandidateSkill(candidate_id=profile.id, source="manual", **payload.model_dump())
-    db.add(skill)
+    # Append via the relationship (not db.add) so profile.skills reflects the
+    # new entry immediately, in-memory, for recompute_completeness.
+    profile.skills.append(skill)
     recompute_completeness(profile)
     db.commit()
     db.refresh(skill)
@@ -121,7 +123,10 @@ def delete_skill(
     ).first()
     if not skill:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Skill not found")
-    db.delete(skill)
+    # Remove via the relationship (delete-orphan cascade handles the DB delete)
+    # so profile.skills reflects the removal for recompute_completeness.
+    profile.skills.remove(skill)
+    recompute_completeness(profile)
     db.commit()
     return None
 
@@ -134,7 +139,9 @@ def add_education(
 ):
     profile = _get_own_profile(db, current_user)
     entry = CandidateEducation(candidate_id=profile.id, **payload.model_dump())
-    db.add(entry)
+    # Append via the relationship (not db.add) so profile.education reflects
+    # the new entry immediately, in-memory, for recompute_completeness.
+    profile.education.append(entry)
     recompute_completeness(profile)
     db.commit()
     db.refresh(entry)
@@ -153,7 +160,10 @@ def delete_education(
     ).first()
     if not entry:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Education entry not found")
-    db.delete(entry)
+    # Remove via the relationship (delete-orphan cascade handles the DB delete)
+    # so profile.education reflects the removal for recompute_completeness.
+    profile.education.remove(entry)
+    recompute_completeness(profile)
     db.commit()
     return None
 
@@ -189,9 +199,11 @@ def delete_experience(
     if not entry:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Experience entry not found")
     # Remove via the relationship (delete-orphan cascade handles the DB delete)
-    # so profile.experiences reflects the removal for recompute_total_experience_years.
+    # so profile.experiences reflects the removal for recompute_total_experience_years
+    # and recompute_completeness.
     profile.experiences.remove(entry)
     recompute_total_experience_years(profile)
+    recompute_completeness(profile)
     db.commit()
     return None
 
