@@ -1,4 +1,5 @@
 import re
+from datetime import date
 
 SECTION_HEADERS = {
     "skills": ["skills", "technical skills", "core competencies", "key skills"],
@@ -30,10 +31,48 @@ def _extract_phone(text: str) -> str | None:
 LINKEDIN_RE = re.compile(r"(https?://)?(www\.)?linkedin\.com/[A-Za-z0-9_/-]+", re.IGNORECASE)
 GITHUB_RE = re.compile(r"(https?://)?(www\.)?github\.com/[A-Za-z0-9_/-]+", re.IGNORECASE)
 DATE_RANGE_RE = re.compile(
-    r"(?P<start>[A-Za-z]{3,9}\.?\s?\d{4}|\d{4})\s*[-–—to]{1,4}\s*(?P<end>[A-Za-z]{3,9}\.?\s?\d{4}|\d{4}|present|current)",
+    # [ \t]? (not \s?) between a month name and its year: \s also matches
+    # newlines, which let this greedily bleed into the previous line — e.g.
+    # matching "Inc\n2018" as the start of "...Beta Inc\n2018 - 2020" instead
+    # of just "2018". See DQ-1 in QA_TESTING_GUIDE.pdf.
+    r"(?P<start>[A-Za-z]{3,9}\.?[ \t]?\d{4}|\d{4})\s*[-–—to]{1,4}\s*"
+    r"(?P<end>[A-Za-z]{3,9}\.?[ \t]?\d{4}|\d{4}|present|current)",
     re.IGNORECASE,
 )
 TITLE_AT_COMPANY_RE = re.compile(r"^(?P<title>.+?)\s+at\s+(?P<company>.+)$", re.IGNORECASE)
+
+MONTH_ABBR = {
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+    "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+_MONTH_YEAR_RE = re.compile(r"([A-Za-z]{3,9})\.?\s?(\d{4})")
+
+
+def parse_resume_date(raw: str | None) -> date | None:
+    """Best-effort parse of a DATE_RANGE_RE start/end capture ("Jan 2020",
+    "January 2020", or a bare "2020") into a date. Returns None for anything
+    else, including "present"/"current" (callers derive is_current from the
+    raw string directly, not from this).
+
+    DQ-1: without this, CandidateExperience.start_date/end_date were never
+    populated from resume text, so recompute_total_experience_years had
+    nothing to compute a duration from and total_experience_years silently
+    stayed 0.0 after a resume upload — not a bug in the recompute itself, but
+    in never feeding it real dates. See QA_TESTING_GUIDE.pdf.
+    """
+    if not raw:
+        return None
+    raw = raw.strip().rstrip(".")
+    if raw.lower() in {"present", "current"}:
+        return None
+    if re.fullmatch(r"\d{4}", raw):
+        return date(int(raw), 1, 1)
+    match = _MONTH_YEAR_RE.match(raw)
+    if match:
+        month = MONTH_ABBR.get(match.group(1).lower()[:3])
+        if month:
+            return date(int(match.group(2)), month, 1)
+    return None
 
 KNOWN_SKILLS = [
     # Languages

@@ -3,6 +3,7 @@ import uuid
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Response, UploadFile, status
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.exc import StaleDataError
 
 from app.core.deps import require_roles
 from app.database import SessionLocal, get_db
@@ -13,6 +14,7 @@ from app.schemas.resume import ResumeOut, ResumeParsedDataOut
 from app.services.candidate_profile import recompute_completeness, recompute_total_experience_years
 from app.services.resume_parsing import parse_resume
 from app.services.resume_parsing.extractor import extract_text
+from app.services.resume_parsing.rules_parser import parse_resume_date
 from app.services.storage import storage_service
 
 logger = logging.getLogger(__name__)
@@ -32,12 +34,27 @@ def _get_own_profile(db: Session, user: User) -> CandidateProfile:
 def _process_resume(resume_id: uuid.UUID) -> None:
     """Runs in a background task with its own DB session."""
     db = SessionLocal()
+
+    def _safe_commit() -> bool:
+        """Commit, tolerating the resume having been deleted concurrently
+        (e.g. reparse immediately followed by delete) — that leaves this
+        UPDATE matching 0 rows, which SQLAlchemy reports as a StaleDataError.
+        There's nothing left to update in that case, so just bail out
+        instead of letting it blow up the background task."""
+        try:
+            db.commit()
+            return True
+        except StaleDataError:
+            db.rollback()
+            return False
+
     try:
         resume = db.get(Resume, resume_id)
         if not resume:
             return
         resume.parsing_status = "processing"
-        db.commit()
+        if not _safe_commit():
+            return
 
         try:
             file_bytes = storage_service.download_bytes(resume.storage_key)
@@ -59,12 +76,12 @@ def _process_resume(resume_id: uuid.UUID) -> None:
                 recompute_completeness(candidate)
                 recompute_total_experience_years(candidate)
 
-            db.commit()
+            _safe_commit()
         except Exception as exc:  # noqa: BLE001
             logger.exception("Resume parsing failed for %s", resume_id)
             resume.parsing_status = "failed"
             resume.parsing_error = str(exc)
-            db.commit()
+            _safe_commit()
     finally:
         db.close()
 
@@ -109,6 +126,8 @@ def _apply_parsed_data_to_profile(candidate: CandidateProfile, parsed_data: dict
                     title=exp.get("title") or exp.get("title_line"),
                     company=exp.get("company"),
                     industry=exp.get("industry"),
+                    start_date=parse_resume_date(exp.get("start_raw")),
+                    end_date=parse_resume_date(exp.get("end_raw")),
                     is_current=bool(exp.get("is_current")),
                     description=exp.get("description"),
                 )
