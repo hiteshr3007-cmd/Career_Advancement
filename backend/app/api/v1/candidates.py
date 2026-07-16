@@ -1,7 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.core.deps import get_current_user, require_roles
 from app.database import get_db
@@ -48,12 +48,17 @@ def _to_search_result(profile: CandidateProfile) -> CandidateSearchResultOut:
 
 
 def _get_own_profile(db: Session, user: User) -> CandidateProfile:
+    # selectinload (not joinedload) for the one-to-many collections: joining
+    # three independent one-to-many relationships in a single query multiplies
+    # rows (skills x education x experiences per profile) — selectinload issues
+    # one extra "WHERE parent_id IN (...)" query per collection instead, which
+    # doesn't fan out. See BE-3 in QA_TESTING_GUIDE.pdf.
     profile = (
         db.query(CandidateProfile)
         .options(
-            joinedload(CandidateProfile.skills),
-            joinedload(CandidateProfile.education),
-            joinedload(CandidateProfile.experiences),
+            selectinload(CandidateProfile.skills),
+            selectinload(CandidateProfile.education),
+            selectinload(CandidateProfile.experiences),
         )
         .filter(CandidateProfile.user_id == user.id)
         .first()
@@ -79,8 +84,6 @@ def update_my_profile(
 ):
     profile = _get_own_profile(db, current_user)
     update_data = payload.model_dump(exclude_unset=True)
-    if "career_preferences" in update_data and update_data["career_preferences"] is not None:
-        update_data["career_preferences"] = update_data["career_preferences"]
     # An explicit total_experience_years in the payload is the candidate
     # hand-editing the field, so stop auto-deriving it from experience entries
     # from here on (see recompute_total_experience_years).
@@ -260,11 +263,16 @@ def search_candidates(
     base_query = _apply_search_filters(db.query(CandidateProfile), filters)
     total = base_query.count()
 
+    # joinedload for `user` (many-to-one, one row per profile — cheap and
+    # correct in the same query); selectinload for the one-to-many collections
+    # (see _get_own_profile) so a page of N candidates doesn't fan out into
+    # N * skills * education * experiences rows. This was the main contributor
+    # to GET /candidates being slow under load (BE-3, QA_TESTING_GUIDE.pdf).
     query = base_query.options(
         joinedload(CandidateProfile.user),
-        joinedload(CandidateProfile.skills),
-        joinedload(CandidateProfile.education),
-        joinedload(CandidateProfile.experiences),
+        selectinload(CandidateProfile.skills),
+        selectinload(CandidateProfile.education),
+        selectinload(CandidateProfile.experiences),
     ).order_by(CandidateProfile.created_at.desc())
     profiles = query.offset(offset).limit(limit).all()
 
@@ -286,9 +294,9 @@ def get_candidate_by_id(
         db.query(CandidateProfile)
         .options(
             joinedload(CandidateProfile.user),
-            joinedload(CandidateProfile.skills),
-            joinedload(CandidateProfile.education),
-            joinedload(CandidateProfile.experiences),
+            selectinload(CandidateProfile.skills),
+            selectinload(CandidateProfile.education),
+            selectinload(CandidateProfile.experiences),
         )
         .filter(CandidateProfile.id == candidate_id)
         .first()

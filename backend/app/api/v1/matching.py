@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.deps import require_roles
 from app.database import get_db
@@ -29,9 +29,12 @@ VIEWER_ROLES = (
 
 
 def _load_candidate_for_matching(db: Session, candidate_id: uuid.UUID) -> CandidateProfile:
+    # selectinload, not joinedload: joining two independent one-to-many
+    # collections in one query multiplies rows (skills x experiences) — see
+    # BE-3 in QA_TESTING_GUIDE.pdf and the same fix in api/v1/candidates.py.
     candidate = (
         db.query(CandidateProfile)
-        .options(joinedload(CandidateProfile.skills), joinedload(CandidateProfile.experiences))
+        .options(selectinload(CandidateProfile.skills), selectinload(CandidateProfile.experiences))
         .filter(CandidateProfile.id == candidate_id)
         .first()
     )
@@ -102,10 +105,12 @@ def compute_my_matches(
     current_user: User = Depends(require_roles(UserRole.CANDIDATE.value)),
     db: Session = Depends(get_db),
 ):
-    candidate = db.query(CandidateProfile).filter(CandidateProfile.user_id == current_user.id).first()
-    if not candidate:
+    candidate_id = (
+        db.query(CandidateProfile.id).filter(CandidateProfile.user_id == current_user.id).scalar()
+    )
+    if not candidate_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate profile not found")
-    candidate = _load_candidate_for_matching(db, candidate.id)
+    candidate = _load_candidate_for_matching(db, candidate_id)
     return _run_matching(db, candidate, benchmark_id)
 
 
