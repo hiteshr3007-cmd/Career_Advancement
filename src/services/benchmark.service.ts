@@ -1,5 +1,6 @@
 import api from "../lib/api";
 import { API_ENDPOINTS } from "../constants/api";
+import { NOTIFICATIONS_REFRESH_EVENT } from "../constants/events";
 import { Benchmark, BenchmarkFilters, BenchmarkFormInput } from "../types/benchmark";
 
 const benchmarkService = {
@@ -19,6 +20,7 @@ const benchmarkService = {
 
   createBenchmark: async (payload: BenchmarkFormInput): Promise<Benchmark> => {
     const response = await api.post<Benchmark>(API_ENDPOINTS.BENCHMARK.LIST, payload);
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     return response.data;
   },
 
@@ -30,6 +32,7 @@ const benchmarkService = {
       API_ENDPOINTS.BENCHMARK.DETAIL(benchmarkId),
       payload
     );
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     return response.data;
   },
 
@@ -38,6 +41,7 @@ const benchmarkService = {
   // rather than expect an updated record back.
   deactivateBenchmark: async (benchmarkId: string): Promise<void> => {
     await api.delete(API_ENDPOINTS.BENCHMARK.DETAIL(benchmarkId));
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
   },
 
   // There's no dedicated reactivate endpoint; PUT with is_active: true does it.
@@ -46,6 +50,7 @@ const benchmarkService = {
       API_ENDPOINTS.BENCHMARK.DETAIL(benchmarkId),
       { is_active: true }
     );
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     return response.data;
   },
 };

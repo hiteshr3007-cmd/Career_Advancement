@@ -86,12 +86,17 @@ async function buildCandidateNotifications(): Promise<NotificationItem[]> {
   return items;
 }
 
+// Largest page the backend allows (benchmarks.py: Query(50, le=200)) — used to
+// get an accurate active-benchmark count in one call, since the list endpoint
+// doesn't return a separate total the way candidate search does.
+const BENCHMARK_COUNT_LIMIT = 200;
+
 async function buildViewerNotifications(): Promise<NotificationItem[]> {
   const items: NotificationItem[] = [];
 
   const [candidatePage, benchmarks] = await Promise.all([
     candidateService.searchCandidates({ limit: 1, offset: 0 }).catch(() => null),
-    benchmarkService.listBenchmarks({ limit: 1 }).catch(() => []),
+    benchmarkService.listBenchmarks({ limit: BENCHMARK_COUNT_LIMIT }).catch(() => []),
   ]);
 
   if (benchmarks.length === 0) {
@@ -100,6 +105,13 @@ async function buildViewerNotifications(): Promise<NotificationItem[]> {
       tone: "warning",
       title: "No active benchmarks",
       description: "Create a benchmark so candidates can be scored and matched.",
+      href: "/benchmarks",
+    });
+  } else {
+    items.push({
+      id: "active-benchmarks",
+      tone: "info",
+      title: `${benchmarks.length} active benchmark${benchmarks.length > 1 ? "s" : ""}`,
       href: "/benchmarks",
     });
   }
