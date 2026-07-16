@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Award, ChevronLeft, ChevronRight, Plus, Target, X } from "lucide-react";
 
+import AccessRestricted from "@/components/layout/AccessRestricted";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,9 +62,14 @@ const EMPTY_FORM: BenchmarkFormInput = {
 
 export default function BenchmarksPage() {
   const { user } = useAuth();
-  const canManage = isViewerRole(user?.role);
 
-  return <BenchmarksView canManage={canManage} />;
+  if (!isViewerRole(user?.role)) {
+    return (
+      <AccessRestricted message="The benchmark repository is only available to recruiters, HR reviewers, employers, and administrators." />
+    );
+  }
+
+  return <BenchmarksView canManage />;
 }
 
 function BenchmarksView({ canManage }: { canManage: boolean }) {

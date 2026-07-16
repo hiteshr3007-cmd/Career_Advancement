@@ -103,7 +103,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: <IconDashboard /> },
   { label: "Candidates", href: "/candidates", icon: <IconCandidates />, visible: isViewerRole },
-  { label: "Benchmarks", href: "/benchmarks", icon: <IconBenchmark /> },
+  { label: "Benchmarks", href: "/benchmarks", icon: <IconBenchmark />, visible: isViewerRole },
   { label: "Admin", href: "/admin", icon: <IconAdmin />, visible: isAdmin },
   { label: "My Resumes", href: "/upload", icon: <IconUpload />, visible: isCandidate },
   { label: "Candidate Profile", href: "/profile", icon: <IconProfile />, visible: isCandidate },
