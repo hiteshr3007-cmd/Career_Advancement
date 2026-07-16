@@ -5,6 +5,7 @@ from app.models.candidate import (
     CandidateProfile,
     CandidateSkill,
 )
+from app.models.career_plan import CareerPlan
 from app.models.match import CandidateBenchmarkMatch
 from app.models.resume import Resume
 from app.models.storage import StoredFile
@@ -21,4 +22,5 @@ __all__ = [
     "Benchmark",
     "CandidateBenchmarkMatch",
     "StoredFile",
+    "CareerPlan",
 ]

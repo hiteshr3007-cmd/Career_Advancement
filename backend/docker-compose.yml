@@ -38,6 +38,7 @@ services:
     volumes:
       - ./app:/app/app
       - ./alembic:/app/alembic
+      - ./phase3:/app/phase3
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 volumes:
