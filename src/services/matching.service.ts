@@ -1,5 +1,6 @@
 import api from "../lib/api";
 import { API_ENDPOINTS } from "../constants/api";
+import { NOTIFICATIONS_REFRESH_EVENT } from "../constants/events";
 import { MatchResult } from "../types/matching";
 
 const matchingService = {
@@ -14,6 +15,7 @@ const matchingService = {
     const response = await api.post<MatchResult[]>(API_ENDPOINTS.MATCHING.ME_COMPUTE, null, {
       params: benchmarkId ? { benchmark_id: benchmarkId } : undefined,
     });
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     return response.data;
   },
 

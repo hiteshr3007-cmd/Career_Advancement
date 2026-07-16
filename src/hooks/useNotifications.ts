@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { NOTIFICATIONS_REFRESH_EVENT } from "@/constants/events";
 import { isCandidate, isViewerRole } from "@/lib/roles";
 import benchmarkService from "@/services/benchmark.service";
 import candidateService from "@/services/candidate.service";
@@ -155,9 +156,11 @@ export function useNotifications() {
     };
 
     load();
+    window.addEventListener(NOTIFICATIONS_REFRESH_EVENT, load);
 
     return () => {
       isMounted = false;
+      window.removeEventListener(NOTIFICATIONS_REFRESH_EVENT, load);
     };
   }, [user]);
 

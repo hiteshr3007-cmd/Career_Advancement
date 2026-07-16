@@ -1,5 +1,6 @@
 import api from "../lib/api";
 import { API_ENDPOINTS } from "../constants/api";
+import { NOTIFICATIONS_REFRESH_EVENT } from "../constants/events";
 import { Resume } from "../types/resume";
 
 const resumeService = {
@@ -13,6 +14,7 @@ const resumeService = {
             headers: { "Content-Type": undefined },
         });
 
+        window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
         return response.data;
     },
 
@@ -37,11 +39,13 @@ const resumeService = {
 
     reparseResume: async (resumeId: string): Promise<Resume> => {
         const response = await api.post<Resume>(API_ENDPOINTS.RESUME.REPARSE(resumeId));
+        window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
         return response.data;
     },
 
     deleteResume: async (resumeId: string): Promise<void> => {
         await api.delete(API_ENDPOINTS.RESUME.DETAIL(resumeId));
+        window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     },
 };
 

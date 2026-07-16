@@ -1,5 +1,6 @@
 import api from "../lib/api";
 import { API_ENDPOINTS } from "../constants/api";
+import { NOTIFICATIONS_REFRESH_EVENT } from "../constants/events";
 import {
   CandidateProfileOut,
   CandidateProfileUpdateInput,
@@ -27,16 +28,19 @@ const candidateService = {
       API_ENDPOINTS.CANDIDATE.ME,
       payload
     );
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     return response.data;
   },
 
   addSkill: async (payload: SkillInput): Promise<SkillOut> => {
     const response = await api.post<SkillOut>(API_ENDPOINTS.CANDIDATE.SKILLS, payload);
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     return response.data;
   },
 
   deleteSkill: async (skillId: string): Promise<void> => {
     await api.delete(API_ENDPOINTS.CANDIDATE.SKILL(skillId));
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
   },
 
   addEducation: async (payload: EducationInput): Promise<EducationOut> => {
@@ -44,11 +48,13 @@ const candidateService = {
       API_ENDPOINTS.CANDIDATE.EDUCATION,
       payload
     );
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     return response.data;
   },
 
   deleteEducation: async (educationId: string): Promise<void> => {
     await api.delete(API_ENDPOINTS.CANDIDATE.EDUCATION_ITEM(educationId));
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
   },
 
   addExperience: async (payload: ExperienceInput): Promise<ExperienceOut> => {
@@ -56,6 +62,7 @@ const candidateService = {
       API_ENDPOINTS.CANDIDATE.EXPERIENCE,
       payload
     );
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     return response.data;
   },
 
@@ -65,11 +72,13 @@ const candidateService = {
     const response = await api.post<CandidateProfileOut>(
       API_ENDPOINTS.CANDIDATE.EXPERIENCE_RECALCULATE
     );
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     return response.data;
   },
 
   deleteExperience: async (experienceId: string): Promise<void> => {
     await api.delete(API_ENDPOINTS.CANDIDATE.EXPERIENCE_ITEM(experienceId));
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
   },
 
   searchCandidates: async (
