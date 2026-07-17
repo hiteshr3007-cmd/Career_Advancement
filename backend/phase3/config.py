@@ -6,6 +6,12 @@ of changing these env vars (Ollama -> OpenAI) or adding one provider class
 """
 import os
 
+from dotenv import load_dotenv
+
+# app.config reads .env via pydantic-settings without exporting to os.environ,
+# so PHASE3_* vars in .env would be invisible here without this.
+load_dotenv()
+
 
 class Phase3Settings:
     # Whether to attempt the LLM narrative layer at all. When false (or when the
