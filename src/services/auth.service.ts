@@ -6,6 +6,7 @@ import {
     ForgotPasswordRequest,
     LoginRequest,
     RegisterRequest,
+    ResetPasswordRequest,
 } from "../types/auth";
 
 const authService = {
@@ -50,6 +51,14 @@ const authService = {
     forgotPassword: async (data: ForgotPasswordRequest) => {
         const response = await api.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, {
             email: data.email,
+        });
+        return response.data;
+    },
+
+    resetPassword: async (data: ResetPasswordRequest) => {
+        const response = await api.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
+            token: data.token,
+            new_password: data.new_password,
         });
         return response.data;
     },

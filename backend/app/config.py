@@ -37,6 +37,21 @@ class Settings(BaseSettings):
 
     cors_origins: str = "http://localhost:3000"
 
+    # Base URL of the frontend, used to build links embedded in emails (e.g.
+    # the password-reset link). No trailing slash.
+    frontend_base_url: str = "http://localhost:3000"
+
+    # SMTP is optional — when smtp_host is unset, outgoing emails (currently
+    # just the password-reset link) are logged instead of sent, so local dev
+    # doesn't need a real mail provider. Any standard SMTP server works
+    # (Gmail, SES, SendGrid, Mailtrap, etc.) — no vendor-specific SDK needed.
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_use_tls: bool = True
+    smtp_from_email: str = "no-reply@career-platform.local"
+
     # Comma-separated allowlist of emails that become administrators on register.
     # Nobody outside this list can ever obtain the administrator role.
     admin_emails: str = ""

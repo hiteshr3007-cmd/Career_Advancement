@@ -14,6 +14,11 @@ export interface RegisterRequest {
     email: string;
   }
 
+  export interface ResetPasswordRequest {
+    token: string;
+    new_password: string;
+  }
+
   export interface AuthUser {
     id: string;
     full_name: string;

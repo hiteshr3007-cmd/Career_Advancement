@@ -2,7 +2,7 @@ import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -17,6 +17,7 @@ from app.core.security import (
 )
 from app.database import get_db
 from app.models.candidate import CandidateProfile
+from app.services.email import send_password_reset_email
 from app.models.user import PasswordResetToken, RefreshToken, User, UserRole
 from app.schemas.auth import (
     AccessTokenResponse,
@@ -164,7 +165,11 @@ def me(current_user: User = Depends(get_current_user)):
 
 
 @router.post("/password-reset/request", status_code=status.HTTP_202_ACCEPTED)
-def request_password_reset(payload: PasswordResetRequest, db: Session = Depends(get_db)):
+def request_password_reset(
+    payload: PasswordResetRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
     user = db.query(User).filter(User.email == payload.email).first()
     if user:
         token = secrets.token_urlsafe(32)
@@ -176,7 +181,9 @@ def request_password_reset(payload: PasswordResetRequest, db: Session = Depends(
             )
         )
         db.commit()
-        # In production this token is emailed to the user, not returned via API.
+        # Sent after the response so a slow/unreachable mail server can't delay
+        # or affect this endpoint's anti-enumeration behavior either way.
+        background_tasks.add_task(send_password_reset_email, user.email, user.full_name, token)
     return {"detail": "If that email exists, a reset link has been sent."}
 
 
