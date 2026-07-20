@@ -108,8 +108,8 @@ const navItems: NavItem[] = [
   { label: "My Resumes", href: "/upload", icon: <IconUpload />, visible: isCandidate },
   { label: "Candidate Profile", href: "/profile", icon: <IconProfile />, visible: isCandidate },
   { label: "Career Matches", href: "/matches", icon: <IconMatches />, visible: isCandidate },
-  { label: "Gap Analysis", href: "/gap-analysis", icon: <IconGap />, disabled: true },
-  { label: "Career Roadmap", href: "/career-roadmap", icon: <IconRoadmap />, disabled: true },
+  { label: "Gap Analysis", href: "/gap-analysis", icon: <IconGap />, visible: isCandidate },
+  { label: "Career Roadmap", href: "/career-roadmap", icon: <IconRoadmap />, visible: isCandidate },
 ];
 
 const settingsItem: NavItem = { label: "Settings", href: "/settings", icon: <IconSettings /> };

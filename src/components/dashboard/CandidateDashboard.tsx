@@ -193,12 +193,7 @@ export default function CandidateDashboard() {
           { label: "Upload Resume", icon: <Upload size={18} />, href: "/upload" },
           { label: "View Matches", icon: <TrendingUp size={18} />, href: "/matches" },
           { label: "Edit Profile", icon: <UserIcon size={18} />, href: "/profile" },
-          {
-            label: "Generate Roadmap",
-            icon: <Sparkles size={18} />,
-            disabled: true,
-            disabledReason: "Career Roadmap is coming soon",
-          },
+          { label: "Generate Roadmap", icon: <Sparkles size={18} />, href: "/career-roadmap" },
         ]}
       />
 

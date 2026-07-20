@@ -48,4 +48,11 @@ export const API_ENDPOINTS = {
       CANDIDATE: (candidateId: string) => `/matching/candidates/${candidateId}`,
       CANDIDATE_COMPUTE: (candidateId: string) => `/matching/candidates/${candidateId}/compute`,
     },
+
+    CAREER: {
+      ME: "/career/me",
+      ME_GENERATE: "/career/me/generate",
+      CANDIDATE: (candidateId: string) => `/career/candidates/${candidateId}`,
+      CANDIDATE_GENERATE: (candidateId: string) => `/career/candidates/${candidateId}/generate`,
+    },
   };
