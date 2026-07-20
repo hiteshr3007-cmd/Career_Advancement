@@ -8,6 +8,7 @@ them first so the plan isn't built from an empty gap set.
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.api.v1.matching import _load_candidate_for_matching, _run_matching
@@ -52,8 +53,21 @@ def _start_generation(
         candidate = _load_candidate_for_matching(db, candidate_id)
         _run_matching(db, candidate, benchmark_id=None)
 
-    plan = db.query(CareerPlan).filter(CareerPlan.candidate_id == candidate_id).first()
-    if plan and plan.status == "processing":
+    # Concurrency guard (F-3): a plan is "in progress" from the moment it is
+    # enqueued (pending) until the background task finishes — not only once the
+    # task flips it to processing. Guarding on processing alone left a window
+    # where a second request arriving before the task started passed the check
+    # and enqueued a duplicate generation. We now (a) treat pending as
+    # in-progress and (b) lock the row FOR UPDATE so the check-and-set is atomic
+    # against truly concurrent requests.
+    in_progress = ("pending", "processing")
+    plan = (
+        db.query(CareerPlan)
+        .filter(CareerPlan.candidate_id == candidate_id)
+        .with_for_update()
+        .first()
+    )
+    if plan and plan.status in in_progress:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Career plan generation already in progress",
@@ -63,7 +77,16 @@ def _start_generation(
         db.add(plan)
     plan.status = "pending"
     plan.error = None
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Another request created the plan row first (candidate_id is unique) —
+        # that request owns this generation, so treat it as already in progress.
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Career plan generation already in progress",
+        ) from None
     db.refresh(plan)
 
     background_tasks.add_task(generate_career_plan, plan.id)
