@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AlertTriangle, Loader2, LucideIcon, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -57,9 +58,12 @@ export function PlanHollowState({
       </p>
       <p className="mx-auto mt-1 max-w-md text-sm text-amber-700">
         This usually means your profile's industry or functional area doesn't line
-        up with any active benchmark yet — not that you have no gaps to close.
-        Double-check your profile, or ask a recruiter/admin to add a benchmark for
-        your field, then regenerate.
+        up with any active benchmark yet — not that you have no gaps to close.{" "}
+        <Link href="/profile" className="font-medium underline hover:text-amber-900">
+          Double-check your profile
+        </Link>
+        , or ask a recruiter/admin to add a benchmark for your field, then
+        regenerate.
       </p>
       <Button
         type="button"
