@@ -12,34 +12,34 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        <p className="mt-1 text-sm text-slate-500">Manage your account and preferences.</p>
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Manage your account and preferences.</p>
       </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Account</h2>
-        <dl className="mt-4 divide-y divide-slate-100">
+      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-card-foreground">Account</h2>
+        <dl className="mt-4 divide-y divide-border">
           <div className="flex items-center justify-between py-3">
-            <dt className="text-sm text-slate-500">Full name</dt>
-            <dd className="text-sm font-medium text-slate-900">{user?.full_name ?? "—"}</dd>
+            <dt className="text-sm text-muted-foreground">Full name</dt>
+            <dd className="text-sm font-medium text-card-foreground">{user?.full_name ?? "—"}</dd>
           </div>
           <div className="flex items-center justify-between py-3">
-            <dt className="text-sm text-slate-500">Email</dt>
-            <dd className="text-sm font-medium text-slate-900">{user?.email ?? "—"}</dd>
+            <dt className="text-sm text-muted-foreground">Email</dt>
+            <dd className="text-sm font-medium text-card-foreground">{user?.email ?? "—"}</dd>
           </div>
           <div className="flex items-center justify-between py-3">
-            <dt className="text-sm text-slate-500">Role</dt>
-            <dd className="text-sm font-medium text-slate-900">{user?.role ?? "—"}</dd>
+            <dt className="text-sm text-muted-foreground">Role</dt>
+            <dd className="text-sm font-medium text-card-foreground">{user?.role ?? "—"}</dd>
           </div>
         </dl>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Appearance</h2>
+      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-card-foreground">Appearance</h2>
         <div className="mt-4 flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-slate-900">Theme</p>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm font-medium text-card-foreground">Theme</p>
+            <p className="text-sm text-muted-foreground">
               {theme === "dark" ? "Dark mode is on" : "Light mode is on"}
             </p>
           </div>
@@ -49,7 +49,7 @@ export default function SettingsPage() {
             aria-checked={theme === "dark"}
             aria-label="Toggle dark mode"
             onClick={toggleTheme}
-            className="inline-flex h-9 items-center gap-2 rounded-full border border-slate-200 px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex h-9 items-center gap-2 rounded-full border border-border px-3 text-sm font-medium text-card-foreground transition hover:bg-accent"
           >
             {theme === "dark" ? <Moon size={16} /> : <Sun size={16} />}
             {theme === "dark" ? "Dark" : "Light"}

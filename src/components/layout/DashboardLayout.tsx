@@ -25,7 +25,7 @@ export default function DashboardLayout({
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onMenuClick={() => setIsSidebarOpen(true)} />
 
-        <main className="flex-1 p-6 bg-gray-50">
+        <main className="flex-1 p-6 bg-background">
           {permissionsChanged && (
             <div className="mb-4 flex items-center justify-between gap-4 rounded-xl bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
               <span>

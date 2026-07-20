@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import { TrendingUp } from "lucide-react";
 
+import { Card } from "@/components/ui/card";
+
 interface StatsCardProps {
   title: string;
   value: string;
@@ -17,7 +19,7 @@ export default function StatsCard({
   icon,
 }: StatsCardProps) {
   return (
-    <div className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg">
+    <Card className="group transition-all duration-300 hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg">
       <div className="flex items-start justify-between">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
           {icon}
@@ -32,20 +34,20 @@ export default function StatsCard({
       </div>
 
       <div className="mt-6">
-        <p className="text-sm font-medium text-slate-500">
+        <p className="text-sm font-medium text-muted-foreground">
           {title}
         </p>
 
-        <h2 className="mt-2 text-4xl font-bold tracking-tight text-slate-900">
+        <h2 className="mt-2 text-4xl font-bold tracking-tight text-foreground">
           {value}
         </h2>
 
         {subtitle && (
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-muted-foreground">
             {subtitle}
           </p>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

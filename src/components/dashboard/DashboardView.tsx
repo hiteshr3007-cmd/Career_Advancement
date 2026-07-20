@@ -10,7 +10,7 @@ export default function DashboardView() {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Loading your dashboard...</p>;
+    return <p className="text-sm text-muted-foreground">Loading your dashboard...</p>;
   }
 
   if (isCandidate(user?.role)) {
@@ -22,7 +22,7 @@ export default function DashboardView() {
   }
 
   return (
-    <p className="text-sm text-slate-500">
+    <p className="text-sm text-muted-foreground">
       We don&apos;t have a dashboard set up for your account role yet.
     </p>
   );

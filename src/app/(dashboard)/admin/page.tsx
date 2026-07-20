@@ -6,6 +6,7 @@ import { Shield, UserPlus } from "lucide-react";
 import AccessRestricted from "@/components/layout/AccessRestricted";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -71,18 +72,18 @@ function AdminUsersView() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">User Administration</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-foreground">User Administration</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Add recruiters, HR reviewers, and employers, and manage existing accounts.
         </p>
       </div>
 
       <CreateUserForm onCreated={upsertUser} />
 
-      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center gap-2 border-b border-slate-200 p-4">
+      <Card className="p-0 overflow-hidden">
+        <div className="flex items-center gap-2 border-b border-border p-4">
           <Shield size={18} className="text-indigo-600" />
-          <h2 className="text-lg font-semibold text-slate-900">All users</h2>
+          <h2 className="text-lg font-semibold text-foreground">All users</h2>
         </div>
 
         {loadError && (
@@ -92,9 +93,9 @@ function AdminUsersView() {
         )}
 
         {isLoading ? (
-          <p className="p-6 text-sm text-slate-500">Loading users...</p>
+          <p className="p-6 text-sm text-muted-foreground">Loading users...</p>
         ) : users.length === 0 ? (
-          <p className="p-6 text-sm text-slate-500">No users found.</p>
+          <p className="p-6 text-sm text-muted-foreground">No users found.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -113,7 +114,7 @@ function AdminUsersView() {
             </TableBody>
           </Table>
         )}
-      </section>
+      </Card>
     </div>
   );
 }
@@ -158,16 +159,16 @@ function CreateUserForm({ onCreated }: { onCreated: (user: AdminUser) => void })
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+      className="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm"
     >
-      <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+      <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
         <UserPlus size={18} className="text-indigo-600" />
         Add a recruiter, HR reviewer, or employer
       </h2>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Full name</label>
+          <label className="text-sm font-medium text-foreground">Full name</label>
           <Input
             required
             value={fullName}
@@ -176,7 +177,7 @@ function CreateUserForm({ onCreated }: { onCreated: (user: AdminUser) => void })
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Email</label>
+          <label className="text-sm font-medium text-foreground">Email</label>
           <Input
             type="email"
             required
@@ -186,7 +187,7 @@ function CreateUserForm({ onCreated }: { onCreated: (user: AdminUser) => void })
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Password</label>
+          <label className="text-sm font-medium text-foreground">Password</label>
           <Input
             type="password"
             required
@@ -197,7 +198,7 @@ function CreateUserForm({ onCreated }: { onCreated: (user: AdminUser) => void })
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Role</label>
+          <label className="text-sm font-medium text-foreground">Role</label>
           <select
             className="h-9 w-full rounded-3xl border border-transparent bg-input/50 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
             value={role}
@@ -276,8 +277,8 @@ function UserRow({
 
   return (
     <TableRow>
-      <TableCell className="font-medium text-slate-900">{user.full_name}</TableCell>
-      <TableCell className="text-slate-500">{user.email}</TableCell>
+      <TableCell className="font-medium text-foreground">{user.full_name}</TableCell>
+      <TableCell className="text-muted-foreground">{user.email}</TableCell>
       <TableCell>
         {canChangeRole ? (
           <select

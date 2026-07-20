@@ -11,6 +11,7 @@ import {
 import AccessRestricted from "@/components/layout/AccessRestricted";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useCareerPlan } from "@/hooks/useCareerPlan";
 import { isCandidate } from "@/lib/roles";
 import { useAuth } from "@/store/auth-context";
@@ -51,8 +52,8 @@ function CareerRoadmapView() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Career Roadmap</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-foreground">Career Roadmap</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             A phased plan — 30 days, 90 days, 180 days, and a 12-month outlook — to
             close your gaps and get you ready.
           </p>
@@ -70,9 +71,7 @@ function CareerRoadmapView() {
       )}
 
       {isLoading ? (
-        <p className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-          Loading your roadmap...
-        </p>
+        <Card className="text-sm text-muted-foreground">Loading your roadmap...</Card>
       ) : !plan ? (
         <PlanEmptyState
           icon={Map}
@@ -109,13 +108,13 @@ function RoadmapSections({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <Card>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
+            <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
               Target role
             </p>
-            <p className="mt-1 text-xl font-bold text-slate-900">
+            <p className="mt-1 text-xl font-bold text-foreground">
               {roadmap.target_role ?? "Not specified"}
             </p>
           </div>
@@ -124,14 +123,12 @@ function RoadmapSections({
           </Badge>
         </div>
         {roadmap.summary && (
-          <p className="mt-4 text-sm text-slate-600">{roadmap.summary}</p>
+          <p className="mt-4 text-sm text-muted-foreground">{roadmap.summary}</p>
         )}
-      </div>
+      </Card>
 
       {orderedPhases.length === 0 ? (
-        <p className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-          No roadmap phases were generated.
-        </p>
+        <Card className="text-sm text-muted-foreground">No roadmap phases were generated.</Card>
       ) : (
         <div className="space-y-4">
           {orderedPhases.map((phase) => (
@@ -141,7 +138,7 @@ function RoadmapSections({
       )}
 
       {!llmUsed && notes.length > 0 && (
-        <p className="text-xs text-slate-400">{notes.join(" ")}</p>
+        <p className="text-xs text-muted-foreground">{notes.join(" ")}</p>
       )}
     </div>
   );
@@ -149,28 +146,28 @@ function RoadmapSections({
 
 function PhaseCard({ phase }: { phase: RoadmapPhase }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <Card>
       <h2 className="text-sm font-semibold tracking-wide text-indigo-600 uppercase">
         {HORIZON_LABEL[phase.horizon]}
       </h2>
-      <p className="mt-1 text-lg font-semibold text-slate-900">{phase.goal}</p>
+      <p className="mt-1 text-lg font-semibold text-foreground">{phase.goal}</p>
 
       {phase.actions.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-500">No actions for this phase.</p>
+        <p className="mt-3 text-sm text-muted-foreground">No actions for this phase.</p>
       ) : (
         <ul className="mt-4 space-y-3">
           {phase.actions.map((action, index) => {
             const Icon = FOCUS_AREA_ICON[action.focus_area] ?? Award;
             return (
-              <li key={index} className="flex gap-3 rounded-xl border border-slate-100 p-3">
+              <li key={index} className="flex gap-3 rounded-xl border border-border p-3">
                 <Icon size={18} className="mt-0.5 shrink-0 text-indigo-600" />
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-medium text-slate-900">{action.action}</span>
+                    <span className="font-medium text-foreground">{action.action}</span>
                     <Badge variant="outline">{action.focus_area}</Badge>
                   </div>
                   {action.detail && (
-                    <p className="mt-1 text-sm text-slate-500">{action.detail}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{action.detail}</p>
                   )}
                 </div>
               </li>
@@ -178,6 +175,6 @@ function PhaseCard({ phase }: { phase: RoadmapPhase }) {
           })}
         </ul>
       )}
-    </section>
+    </Card>
   );
 }

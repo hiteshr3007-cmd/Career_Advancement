@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 export interface InsightItem {
   id: string;
@@ -22,9 +23,9 @@ export default function ActivityCard({
   emptyMessage,
 }: ActivityCardProps) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <Card>
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-slate-900">
+        <h2 className="text-xl font-semibold text-foreground">
           {title}
         </h2>
 
@@ -34,7 +35,7 @@ export default function ActivityCard({
       </div>
 
       {insights.length === 0 ? (
-        <p className="text-sm text-slate-500">{emptyMessage}</p>
+        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       ) : (
         <div className="space-y-5">
           {insights.map((insight) => (
@@ -46,7 +47,7 @@ export default function ActivityCard({
                   {insight.title}
                 </p>
 
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-muted-foreground">
                   {insight.description}
                 </p>
               </div>
@@ -54,6 +55,6 @@ export default function ActivityCard({
           ))}
         </div>
       )}
-    </div>
+    </Card>
   );
 }

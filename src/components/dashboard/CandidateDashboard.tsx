@@ -18,6 +18,7 @@ import AnalyticsChart from "./AnalyticsChart";
 import ActivityCard, { InsightItem } from "./ActivityCard";
 import DashboardCard, { DashboardCardItem } from "./DashboardCard";
 
+import { Card } from "@/components/ui/card";
 import benchmarkService from "@/services/benchmark.service";
 import candidateService from "@/services/candidate.service";
 import matchingService from "@/services/matching.service";
@@ -72,14 +73,14 @@ export default function CandidateDashboard() {
   }, []);
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Loading your dashboard...</p>;
+    return <p className="text-sm text-muted-foreground">Loading your dashboard...</p>;
   }
 
   if (loadError || !profile) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-        <p className="text-slate-600">{loadError ?? "We couldn't load your dashboard."}</p>
-      </div>
+      <Card className="p-8 text-center">
+        <p className="text-muted-foreground">{loadError ?? "We couldn't load your dashboard."}</p>
+      </Card>
     );
   }
 

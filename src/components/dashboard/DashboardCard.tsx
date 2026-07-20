@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { Card } from "@/components/ui/card";
+
 export interface DashboardCardItem {
   id: string;
   name: string;
@@ -23,9 +25,9 @@ export default function DashboardCard({
   onItemClick,
 }: DashboardCardProps) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+    <Card>
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-xl font-semibold text-foreground">
           {title}
         </h2>
 
@@ -40,7 +42,7 @@ export default function DashboardCard({
       </div>
 
       {items.length === 0 ? (
-        <p className="text-sm text-gray-500">{emptyMessage}</p>
+        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       ) : (
         <div className="space-y-4">
           {items.map((item) => (
@@ -49,15 +51,15 @@ export default function DashboardCard({
               key={item.id}
               onClick={onItemClick ? () => onItemClick(item) : undefined}
               disabled={!onItemClick}
-              className="flex w-full items-center justify-between rounded-xl border border-gray-100 p-4 text-left disabled:cursor-default"
+              className="flex w-full items-center justify-between rounded-xl border border-border p-4 text-left disabled:cursor-default"
             >
               <div>
-                <h3 className="font-semibold text-gray-900">
+                <h3 className="font-semibold text-foreground">
                   {item.name}
                 </h3>
 
                 {item.subtitle && (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     {item.subtitle}
                   </p>
                 )}
@@ -72,6 +74,6 @@ export default function DashboardCard({
           ))}
         </div>
       )}
-    </div>
+    </Card>
   );
 }

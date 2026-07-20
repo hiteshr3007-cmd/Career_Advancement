@@ -15,6 +15,7 @@ import {
 import AccessRestricted from "@/components/layout/AccessRestricted";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { extractApiError } from "@/lib/api";
 import { isCandidate } from "@/lib/roles";
@@ -83,15 +84,15 @@ function CandidateProfileView() {
   }, []);
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Loading your profile...</p>;
+    return <p className="text-sm text-muted-foreground">Loading your profile...</p>;
   }
 
   if (loadError || !profile) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-        <User className="mx-auto text-slate-300" size={40} />
-        <p className="mt-3 text-slate-600">{loadError ?? "No profile found."}</p>
-      </div>
+      <Card className="p-8 text-center">
+        <User className="mx-auto text-muted-foreground" size={40} />
+        <p className="mt-3 text-muted-foreground">{loadError ?? "No profile found."}</p>
+      </Card>
     );
   }
 
@@ -207,12 +208,12 @@ function ProfileHeader({
 
   if (!isEditing) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <Card>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">{name}</h1>
-            <p className="mt-1 text-sm text-slate-500">{email}</p>
-            <p className="text-sm text-slate-500">
+            <h1 className="text-2xl font-bold text-foreground">{name}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{email}</p>
+            <p className="text-sm text-muted-foreground">
               {[profile.phone, profile.location].filter(Boolean).join(" · ")}
             </p>
             {profile.current_designation && (
@@ -220,8 +221,8 @@ function ProfileHeader({
                 {profile.current_designation}
               </p>
             )}
-            {profile.summary && <p className="mt-4 text-slate-700">{profile.summary}</p>}
-            <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
+            {profile.summary && <p className="mt-4 text-foreground">{profile.summary}</p>}
+            <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
               {profile.industry && <Badge variant="outline">{profile.industry}</Badge>}
               {profile.functional_area && (
                 <Badge variant="outline">{profile.functional_area}</Badge>
@@ -243,16 +244,16 @@ function ProfileHeader({
             Edit
           </Button>
         </div>
-      </div>
+      </Card>
     );
   }
 
   return (
     <form
       onSubmit={handleSave}
-      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+      className="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm"
     >
-      <h2 className="text-lg font-semibold text-slate-900">Edit profile</h2>
+      <h2 className="text-lg font-semibold text-foreground">Edit profile</h2>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Phone">
@@ -317,7 +318,7 @@ function ProfileHeader({
               setForm({ ...form, total_experience_years: e.target.value })
             }
           />
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-muted-foreground">
             {profile.experience_years_manual_override
               ? "You've set this manually, so it won't be recalculated from your experience entries."
               : "Calculated automatically from your experience entries below. Enter a value to override it."}
@@ -336,7 +337,7 @@ function ProfileHeader({
       </div>
 
       <div className="mt-4 space-y-1.5">
-        <label className="text-sm font-medium text-slate-700">Summary</label>
+        <label className="text-sm font-medium text-foreground">Summary</label>
         <textarea
           className="min-h-24 w-full rounded-2xl border border-transparent bg-input/50 px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
           value={form.summary}
@@ -370,7 +371,7 @@ function ProfileHeader({
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-sm font-medium text-slate-700">{label}</label>
+      <label className="text-sm font-medium text-foreground">{label}</label>
       {children}
     </div>
   );
@@ -425,8 +426,8 @@ function SkillsSection({
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+    <Card>
+      <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
         <Award size={18} className="text-indigo-600" />
         Skills & Certifications
       </h2>
@@ -440,7 +441,7 @@ function SkillsSection({
               aria-label={`Remove ${skill.name}`}
               disabled={pendingDeleteId === skill.id}
               onClick={() => handleDelete(skill)}
-              className="rounded-full p-0.5 hover:bg-slate-200/70 disabled:opacity-50"
+              className="rounded-full p-0.5 hover:bg-muted disabled:opacity-50"
             >
               <X size={12} />
             </button>
@@ -452,7 +453,7 @@ function SkillsSection({
           </Badge>
         ))}
         {profile.skills.length === 0 && profile.certifications.length === 0 && (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             No skills or certifications extracted yet.
           </p>
         )}
@@ -475,7 +476,7 @@ function SkillsSection({
           {error}
         </p>
       )}
-    </section>
+    </Card>
   );
 }
 
@@ -556,9 +557,9 @@ function ExperienceSection({
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <Card>
       <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
           <Briefcase size={18} className="text-indigo-600" />
           Experience
         </h2>
@@ -576,14 +577,14 @@ function ExperienceSection({
               className="flex items-start justify-between gap-3 border-l-2 border-indigo-100 pl-4"
             >
               <div>
-                <p className="font-medium text-slate-900">
+                <p className="font-medium text-foreground">
                   {[exp.title, exp.company].filter(Boolean).join(" · ")}
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-muted-foreground">
                   {formatRange(exp.start_date, exp.end_date, exp.is_current)}
                 </p>
                 {exp.description && (
-                  <p className="mt-1 text-sm text-slate-600">{exp.description}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{exp.description}</p>
                 )}
               </div>
               <button
@@ -591,7 +592,7 @@ function ExperienceSection({
                 aria-label="Remove experience"
                 disabled={pendingDeleteId === exp.id}
                 onClick={() => handleDelete(exp)}
-                className="shrink-0 rounded-full p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
+                className="shrink-0 rounded-full p-1.5 text-muted-foreground hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
               >
                 <Trash2 size={14} />
               </button>
@@ -599,11 +600,11 @@ function ExperienceSection({
           ))}
         </ul>
       ) : (
-        <p className="mt-3 text-sm text-slate-500">No work experience on file yet.</p>
+        <p className="mt-3 text-sm text-muted-foreground">No work experience on file yet.</p>
       )}
 
       {showForm && (
-        <form onSubmit={handleAdd} className="mt-4 space-y-3 rounded-xl bg-slate-50 p-4">
+        <form onSubmit={handleAdd} className="mt-4 space-y-3 rounded-xl bg-muted p-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Title">
               <Input
@@ -641,7 +642,7 @@ function ExperienceSection({
             )}
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm text-foreground">
             <input
               type="checkbox"
               checked={form.is_current}
@@ -682,7 +683,7 @@ function ExperienceSection({
           {error}
         </p>
       )}
-    </section>
+    </Card>
   );
 }
 
@@ -758,9 +759,9 @@ function EducationSection({
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <Card>
       <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
           <GraduationCap size={18} className="text-indigo-600" />
           Education
         </h2>
@@ -775,10 +776,10 @@ function EducationSection({
           {profile.education.map((edu) => (
             <li key={edu.id} className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-medium text-slate-900">
+                <p className="font-medium text-foreground">
                   {[edu.degree, edu.field_of_study].filter(Boolean).join(", ")}
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-muted-foreground">
                   {[edu.institution, formatRange(edu.start_date, edu.end_date)]
                     .filter(Boolean)
                     .join(" · ")}
@@ -789,7 +790,7 @@ function EducationSection({
                 aria-label="Remove education"
                 disabled={pendingDeleteId === edu.id}
                 onClick={() => handleDelete(edu)}
-                className="shrink-0 rounded-full p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
+                className="shrink-0 rounded-full p-1.5 text-muted-foreground hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
               >
                 <Trash2 size={14} />
               </button>
@@ -797,11 +798,11 @@ function EducationSection({
           ))}
         </ul>
       ) : (
-        <p className="mt-3 text-sm text-slate-500">No education history on file yet.</p>
+        <p className="mt-3 text-sm text-muted-foreground">No education history on file yet.</p>
       )}
 
       {showForm && (
-        <form onSubmit={handleAdd} className="mt-4 space-y-3 rounded-xl bg-slate-50 p-4">
+        <form onSubmit={handleAdd} className="mt-4 space-y-3 rounded-xl bg-muted p-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Degree">
               <Input
@@ -867,6 +868,6 @@ function EducationSection({
           {error}
         </p>
       )}
-    </section>
+    </Card>
   );
 }

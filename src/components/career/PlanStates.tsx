@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AlertTriangle, Loader2, LucideIcon, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 // Shared "no plan yet / generating / generation failed" states for the Gap
 // Analysis and Career Roadmap pages — both poll the same CareerPlan row.
@@ -20,23 +21,23 @@ export function PlanEmptyState({
   onGenerate: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-      <Icon className="mx-auto text-slate-300" size={32} />
-      <p className="mt-2 text-sm text-slate-500">{message}</p>
+    <Card className="p-8 text-center">
+      <Icon className="mx-auto text-muted-foreground" size={32} />
+      <p className="mt-2 text-sm text-muted-foreground">{message}</p>
       <Button type="button" className="mt-4" onClick={onGenerate} disabled={isGenerating}>
         <Sparkles size={14} data-icon="inline-start" />
         {isGenerating ? "Starting..." : ctaLabel}
       </Button>
-    </div>
+    </Card>
   );
 }
 
 export function PlanBusyState({ message }: { message: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+    <Card className="p-8 text-center">
       <Loader2 className="mx-auto animate-spin text-indigo-600" size={28} />
-      <p className="mt-2 text-sm text-slate-500">{message}</p>
-    </div>
+      <p className="mt-2 text-sm text-muted-foreground">{message}</p>
+    </Card>
   );
 }
 
@@ -89,13 +90,13 @@ export function PlanFailedState({
   onGenerate: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+    <Card className="p-8 text-center">
       <AlertTriangle className="mx-auto text-rose-400" size={28} />
-      <p className="mt-2 text-sm text-slate-500">{error ?? "Generation failed."}</p>
+      <p className="mt-2 text-sm text-muted-foreground">{error ?? "Generation failed."}</p>
       <Button type="button" className="mt-4" onClick={onGenerate} disabled={isGenerating}>
         <Sparkles size={14} data-icon="inline-start" />
         {isGenerating ? "Retrying..." : "Try again"}
       </Button>
-    </div>
+    </Card>
   );
 }

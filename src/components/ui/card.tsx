@@ -2,6 +2,13 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+// Styled to match this app's established card look (rounded-2xl, bordered,
+// shadow-sm) rather than shadcn's defaults — every hand-rolled "card" div
+// across the app (rounded-2xl border border-slate-200 bg-white p-6 shadow-sm)
+// should use this instead of repeating that string, so the shell only needs
+// fixing in one place. Pass className to override padding/radius per use
+// (e.g. p-8 for empty states, p-4 for list containers) — cn() resolves
+// conflicting utilities correctly.
 function Card({
   className,
   size = "default",
@@ -12,7 +19,7 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-4xl bg-card py-(--card-spacing) text-sm text-card-foreground shadow-md ring-1 ring-foreground/5 [--card-spacing:--spacing(6)] has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] dark:ring-foreground/10 *:[img:first-child]:rounded-t-4xl *:[img:last-child]:rounded-b-4xl",
+        "rounded-2xl border border-border bg-card p-6 text-sm text-card-foreground shadow-sm [--card-spacing:--spacing(6)] data-[size=sm]:[--card-spacing:--spacing(4)]",
         className
       )}
       {...props}

@@ -1,6 +1,7 @@
 import { Award, Briefcase } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Benchmark } from "@/types/benchmark";
 import { MatchRecommendation, MatchResult } from "@/types/matching";
 
@@ -27,13 +28,13 @@ export function MatchCard({ match, benchmark }: { match: MatchResult; benchmark?
   const recommendation = RECOMMENDATION_COPY[match.gap_summary.overall_recommendation];
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <Card>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-foreground">
             {benchmark?.name ?? "Benchmark no longer available"}
           </h2>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             {benchmark
               ? [benchmark.category, benchmark.functional_area, label(benchmark.level)]
                   .filter(Boolean)
@@ -46,7 +47,7 @@ export function MatchCard({ match, benchmark }: { match: MatchResult; benchmark?
 
       <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-2">
         <div>
-          <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
+          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Match score
           </p>
           <p className={`text-2xl font-bold ${scoreColor(match.match_score)}`}>
@@ -54,7 +55,7 @@ export function MatchCard({ match, benchmark }: { match: MatchResult; benchmark?
           </p>
         </div>
         <div>
-          <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
+          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Readiness score
           </p>
           <p className={`text-2xl font-bold ${scoreColor(match.readiness_score)}`}>
@@ -64,7 +65,7 @@ export function MatchCard({ match, benchmark }: { match: MatchResult; benchmark?
       </div>
 
       <section className="mt-5">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <Award size={16} className="text-indigo-600" />
           Skill & certification gaps
         </h3>
@@ -87,32 +88,32 @@ export function MatchCard({ match, benchmark }: { match: MatchResult; benchmark?
           {match.matched_required_skills.length === 0 &&
             match.missing_required_skills.length === 0 &&
             match.missing_certifications.length === 0 && (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-muted-foreground">
                 No required skills or certifications listed on this benchmark.
               </p>
             )}
         </div>
-        <p className="mt-2 text-xs text-slate-400">
+        <p className="mt-2 text-xs text-muted-foreground">
           Solid badges are skills the candidate has; red badges are required items
           they are missing.
         </p>
       </section>
 
       <section className="mt-5">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <Briefcase size={16} className="text-indigo-600" />
           Experience
         </h3>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1 text-sm text-muted-foreground">
           {match.gap_summary.experience_gap.years_short > 0
             ? `${match.gap_summary.experience_gap.years_short} year(s) short of the ${match.gap_summary.experience_gap.benchmark_min_years}-year minimum (has ${match.gap_summary.experience_gap.candidate_years}).`
             : `Meets the experience requirement (${match.gap_summary.experience_gap.candidate_years} years vs. a ${match.gap_summary.experience_gap.benchmark_min_years}-year minimum).`}
         </p>
       </section>
 
-      <p className="mt-4 text-xs text-slate-400">
+      <p className="mt-4 text-xs text-muted-foreground">
         Computed {new Date(match.computed_at).toLocaleString()}
       </p>
-    </div>
+    </Card>
   );
 }

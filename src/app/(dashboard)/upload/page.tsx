@@ -7,6 +7,7 @@ import AccessRestricted from "@/components/layout/AccessRestricted";
 import ResumeUploader from "@/components/resume/ResumeUploader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { extractApiError } from "@/lib/api";
 import { isCandidate } from "@/lib/roles";
 import resumeService from "@/services/resume.service";
@@ -34,8 +35,8 @@ export default function UploadPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">My Resumes</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-foreground">My Resumes</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Upload your resume to let the AI engine extract your profile,
           skills, and experience automatically.
         </p>
@@ -88,30 +89,30 @@ function ResumeManager() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <Card>
         <ResumeUploader onUploaded={loadResumes} />
-      </div>
+      </Card>
 
       {error && (
         <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-600">{error}</p>
       )}
 
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 p-4">
-          <h2 className="text-lg font-semibold text-slate-900">Uploaded versions</h2>
+      <Card className="p-0 overflow-hidden">
+        <div className="border-b border-border p-4">
+          <h2 className="text-lg font-semibold text-foreground">Uploaded versions</h2>
         </div>
 
         {isLoading ? (
-          <p className="p-6 text-sm text-slate-500">Loading your resumes...</p>
+          <p className="p-6 text-sm text-muted-foreground">Loading your resumes...</p>
         ) : resumes.length === 0 ? (
           <div className="p-8 text-center">
-            <FileText className="mx-auto text-slate-300" size={32} />
-            <p className="mt-2 text-sm text-slate-500">
+            <FileText className="mx-auto text-muted-foreground" size={32} />
+            <p className="mt-2 text-sm text-muted-foreground">
               You haven't uploaded a resume yet.
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-border">
             {resumes.map((resume) => (
               <ResumeRow
                 key={resume.id}
@@ -122,7 +123,7 @@ function ResumeManager() {
             ))}
           </ul>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
@@ -188,11 +189,11 @@ function ResumeRow({
     <li className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate font-medium text-slate-900">{resume.original_file_name}</p>
+          <p className="truncate font-medium text-foreground">{resume.original_file_name}</p>
           <Badge variant="outline">v{resume.version}</Badge>
           {resume.is_active && <Badge variant="secondary">Active</Badge>}
         </div>
-        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           <span>{new Date(resume.created_at).toLocaleString()}</span>
           <Badge variant={status.variant}>
             {isBusy && <Loader2 size={12} className="mr-1 animate-spin" data-icon="inline-start" />}

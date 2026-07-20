@@ -6,6 +6,7 @@ import { RefreshCw, Target } from "lucide-react";
 import AccessRestricted from "@/components/layout/AccessRestricted";
 import { MatchCard } from "@/components/matching/MatchCard";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { extractApiError } from "@/lib/api";
 import { isCandidate } from "@/lib/roles";
 import benchmarkService from "@/services/benchmark.service";
@@ -92,8 +93,8 @@ function CareerMatchesView() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Career Matches</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-foreground">Career Matches</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             See how your profile stacks up against active role benchmarks, and what's
             missing to get there.
           </p>
@@ -109,17 +110,15 @@ function CareerMatchesView() {
       )}
 
       {isLoading ? (
-        <p className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-          Loading your matches...
-        </p>
+        <Card className="text-sm text-muted-foreground">Loading your matches...</Card>
       ) : sortedMatches.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <Target className="mx-auto text-slate-300" size={32} />
-          <p className="mt-2 text-sm text-slate-500">
+        <Card className="p-8 text-center">
+          <Target className="mx-auto text-muted-foreground" size={32} />
+          <p className="mt-2 text-sm text-muted-foreground">
             No matches yet. Click "Compute matches" to score your profile against
             active benchmarks.
           </p>
-        </div>
+        </Card>
       ) : (
         <div className="space-y-4">
           {sortedMatches.map((match) => (

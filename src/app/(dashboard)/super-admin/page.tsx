@@ -6,6 +6,7 @@ import { ShieldCheck, UserPlus } from "lucide-react";
 import AccessRestricted from "@/components/layout/AccessRestricted";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -71,8 +72,8 @@ function ManageAdminsView({ currentUserId }: { currentUserId?: string }) {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Super Administration</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-foreground">Super Administration</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Create and manage administrator and super-admin accounts. This is the only
           place admin accounts can be created or changed.
         </p>
@@ -80,10 +81,10 @@ function ManageAdminsView({ currentUserId }: { currentUserId?: string }) {
 
       <CreateAdminForm onCreated={upsertAdmin} />
 
-      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center gap-2 border-b border-slate-200 p-4">
+      <Card className="p-0 overflow-hidden">
+        <div className="flex items-center gap-2 border-b border-border p-4">
           <ShieldCheck size={18} className="text-indigo-600" />
-          <h2 className="text-lg font-semibold text-slate-900">Admin accounts</h2>
+          <h2 className="text-lg font-semibold text-foreground">Admin accounts</h2>
         </div>
 
         {loadError && (
@@ -93,9 +94,9 @@ function ManageAdminsView({ currentUserId }: { currentUserId?: string }) {
         )}
 
         {isLoading ? (
-          <p className="p-6 text-sm text-slate-500">Loading admins...</p>
+          <p className="p-6 text-sm text-muted-foreground">Loading admins...</p>
         ) : admins.length === 0 ? (
-          <p className="p-6 text-sm text-slate-500">No admin accounts found.</p>
+          <p className="p-6 text-sm text-muted-foreground">No admin accounts found.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -119,7 +120,7 @@ function ManageAdminsView({ currentUserId }: { currentUserId?: string }) {
             </TableBody>
           </Table>
         )}
-      </section>
+      </Card>
     </div>
   );
 }
@@ -164,16 +165,16 @@ function CreateAdminForm({ onCreated }: { onCreated: (admin: AdminAccount) => vo
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+      className="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm"
     >
-      <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+      <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
         <UserPlus size={18} className="text-indigo-600" />
         Add an administrator or super admin
       </h2>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Full name</label>
+          <label className="text-sm font-medium text-foreground">Full name</label>
           <Input
             required
             value={fullName}
@@ -182,7 +183,7 @@ function CreateAdminForm({ onCreated }: { onCreated: (admin: AdminAccount) => vo
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Email</label>
+          <label className="text-sm font-medium text-foreground">Email</label>
           <Input
             type="email"
             required
@@ -192,7 +193,7 @@ function CreateAdminForm({ onCreated }: { onCreated: (admin: AdminAccount) => vo
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Password</label>
+          <label className="text-sm font-medium text-foreground">Password</label>
           <Input
             type="password"
             required
@@ -203,7 +204,7 @@ function CreateAdminForm({ onCreated }: { onCreated: (admin: AdminAccount) => vo
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Role</label>
+          <label className="text-sm font-medium text-foreground">Role</label>
           <select
             className="h-9 w-full rounded-3xl border border-transparent bg-input/50 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
             value={role}
@@ -282,11 +283,11 @@ function AdminRow({
 
   return (
     <TableRow>
-      <TableCell className="font-medium text-slate-900">
+      <TableCell className="font-medium text-foreground">
         {admin.full_name}
-        {isSelf && <span className="ml-2 text-xs text-slate-400">(you)</span>}
+        {isSelf && <span className="ml-2 text-xs text-muted-foreground">(you)</span>}
       </TableCell>
-      <TableCell className="text-slate-500">{admin.email}</TableCell>
+      <TableCell className="text-muted-foreground">{admin.email}</TableCell>
       <TableCell>
         {isSelf ? (
           <Badge variant="outline">{roleLabel(admin.role)}</Badge>

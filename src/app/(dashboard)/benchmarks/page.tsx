@@ -6,6 +6,7 @@ import { Award, ChevronLeft, ChevronRight, Plus, Target, X } from "lucide-react"
 import AccessRestricted from "@/components/layout/AccessRestricted";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -141,8 +142,8 @@ function BenchmarksView({ canManage }: { canManage: boolean }) {
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Benchmarks</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-foreground">Benchmarks</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             {canManage
               ? "Define and maintain the role benchmarks candidates are matched against."
               : "Browse the role benchmarks used to score your career matches."}
@@ -170,7 +171,7 @@ function BenchmarksView({ canManage }: { canManage: boolean }) {
 
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4"
+        className="grid grid-cols-1 gap-3 rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-sm sm:grid-cols-2 lg:grid-cols-4"
       >
         <Input
           placeholder="Category"
@@ -195,7 +196,7 @@ function BenchmarksView({ canManage }: { canManage: boolean }) {
           ))}
         </select>
         {canManage && (
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
             <input
               type="checkbox"
               checked={filters.is_active === false}
@@ -221,13 +222,13 @@ function BenchmarksView({ canManage }: { canManage: boolean }) {
         <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-600">{error}</p>
       )}
 
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <Card className="p-0 overflow-hidden">
         {isLoading ? (
-          <p className="p-6 text-sm text-slate-500">Loading benchmarks...</p>
+          <p className="p-6 text-sm text-muted-foreground">Loading benchmarks...</p>
         ) : benchmarks.length === 0 ? (
           <div className="p-8 text-center">
-            <Target className="mx-auto text-slate-300" size={32} />
-            <p className="mt-2 text-sm text-slate-500">No benchmarks match these filters.</p>
+            <Target className="mx-auto text-muted-foreground" size={32} />
+            <p className="mt-2 text-sm text-muted-foreground">No benchmarks match these filters.</p>
           </div>
         ) : (
           <Table>
@@ -248,7 +249,7 @@ function BenchmarksView({ canManage }: { canManage: boolean }) {
                   className="cursor-pointer"
                   onClick={() => setSelected(benchmark)}
                 >
-                  <TableCell className="font-medium text-slate-900">
+                  <TableCell className="font-medium text-foreground">
                     {benchmark.name}
                   </TableCell>
                   <TableCell>{benchmark.category}</TableCell>
@@ -273,9 +274,9 @@ function BenchmarksView({ canManage }: { canManage: boolean }) {
             </TableBody>
           </Table>
         )}
-      </div>
+      </Card>
 
-      <div className="flex items-center justify-between text-sm text-slate-500">
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
         <p>Showing {benchmarks.length ? offset + 1 : 0}–{offset + benchmarks.length}</p>
         <div className="flex gap-2">
           <Button
@@ -358,7 +359,7 @@ function BenchmarkDetailModal({
         onClick={onClose}
       >
         <div
-          className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+          className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-card p-6 text-card-foreground shadow-xl"
           onClick={(e) => e.stopPropagation()}
         >
           <BenchmarkForm
@@ -382,13 +383,13 @@ function BenchmarkDetailModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-card p-6 text-card-foreground shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">{benchmark.name}</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <h2 className="text-xl font-bold text-foreground">{benchmark.name}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
               {[benchmark.category, benchmark.functional_area, label(benchmark.level)]
                 .filter(Boolean)
                 .join(" · ")}
@@ -398,14 +399,14 @@ function BenchmarkDetailModal({
             type="button"
             aria-label="Close"
             onClick={onClose}
-            className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <X size={18} />
           </button>
         </div>
 
         {benchmark.description && (
-          <p className="mt-4 text-sm text-slate-700">{benchmark.description}</p>
+          <p className="mt-4 text-sm text-foreground">{benchmark.description}</p>
         )}
 
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
@@ -422,7 +423,7 @@ function BenchmarkDetailModal({
         </div>
 
         <section className="mt-6">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <Award size={16} className="text-indigo-600" />
             Skills & certifications
           </h3>
@@ -451,10 +452,10 @@ function BenchmarkDetailModal({
               benchmark.preferred_skills.length === 0 &&
               benchmark.required_certifications.length === 0 &&
               benchmark.preferred_certifications.length === 0 && (
-                <p className="text-sm text-slate-500">No skills or certifications listed.</p>
+                <p className="text-sm text-muted-foreground">No skills or certifications listed.</p>
               )}
           </div>
-          <p className="mt-2 text-xs text-slate-400">
+          <p className="mt-2 text-xs text-muted-foreground">
             Solid badges are required; outlined badges are preferred.
           </p>
         </section>
@@ -464,7 +465,7 @@ function BenchmarkDetailModal({
         )}
 
         {canManage && (
-          <div className="mt-6 flex justify-end gap-2 border-t border-slate-100 pt-4">
+          <div className="mt-6 flex justify-end gap-2 border-t border-border pt-4">
             <Button
               type="button"
               variant="outline"
@@ -547,11 +548,11 @@ function BenchmarkForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+      className="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm"
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Name</label>
+          <label className="text-sm font-medium text-foreground">Name</label>
           <Input
             required
             value={form.name}
@@ -560,7 +561,7 @@ function BenchmarkForm({
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Category</label>
+          <label className="text-sm font-medium text-foreground">Category</label>
           <Input
             required
             value={form.category}
@@ -569,7 +570,7 @@ function BenchmarkForm({
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Functional area</label>
+          <label className="text-sm font-medium text-foreground">Functional area</label>
           <Input
             value={form.functional_area}
             onChange={(e) => setForm({ ...form, functional_area: e.target.value })}
@@ -577,7 +578,7 @@ function BenchmarkForm({
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Level</label>
+          <label className="text-sm font-medium text-foreground">Level</label>
           <select
             className="h-9 w-full rounded-3xl border border-transparent bg-input/50 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
             value={form.level}
@@ -591,7 +592,7 @@ function BenchmarkForm({
           </select>
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Min experience (years)</label>
+          <label className="text-sm font-medium text-foreground">Min experience (years)</label>
           <Input
             type="number"
             min="0"
@@ -602,7 +603,7 @@ function BenchmarkForm({
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Max experience (years)</label>
+          <label className="text-sm font-medium text-foreground">Max experience (years)</label>
           <Input
             type="number"
             min="0"
@@ -620,7 +621,7 @@ function BenchmarkForm({
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Required skills</label>
+          <label className="text-sm font-medium text-foreground">Required skills</label>
           <Input
             value={skillsText}
             onChange={(e) => setSkillsText(e.target.value)}
@@ -628,7 +629,7 @@ function BenchmarkForm({
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Preferred skills</label>
+          <label className="text-sm font-medium text-foreground">Preferred skills</label>
           <Input
             value={preferredSkillsText}
             onChange={(e) => setPreferredSkillsText(e.target.value)}
@@ -636,7 +637,7 @@ function BenchmarkForm({
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Required certifications</label>
+          <label className="text-sm font-medium text-foreground">Required certifications</label>
           <Input
             value={certsText}
             onChange={(e) => setCertsText(e.target.value)}
@@ -644,7 +645,7 @@ function BenchmarkForm({
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Preferred certifications</label>
+          <label className="text-sm font-medium text-foreground">Preferred certifications</label>
           <Input
             value={preferredCertsText}
             onChange={(e) => setPreferredCertsText(e.target.value)}
@@ -654,7 +655,7 @@ function BenchmarkForm({
       </div>
 
       <div className="mt-4 space-y-1.5">
-        <label className="text-sm font-medium text-slate-700">Description</label>
+        <label className="text-sm font-medium text-foreground">Description</label>
         <textarea
           className="min-h-24 w-full rounded-2xl border border-transparent bg-input/50 px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
           value={form.description}

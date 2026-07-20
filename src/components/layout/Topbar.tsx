@@ -82,12 +82,12 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-slate-200 bg-white/80 px-4 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border bg-background/80 px-4 backdrop-blur sm:px-6">
       <button
         type="button"
         aria-label="Open navigation menu"
         onClick={onMenuClick}
-        className="shrink-0 text-slate-500 transition hover:text-slate-900 md:hidden"
+        className="shrink-0 text-muted-foreground transition hover:text-foreground md:hidden"
       >
         <Menu size={22} />
       </button>
@@ -99,7 +99,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
         >
           <Search
             size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
           />
 
           <Input
@@ -112,10 +112,10 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
           />
         </form>
       ) : (
-        <div className="flex min-w-0 flex-1 items-center gap-2 text-slate-400">
+        <div className="flex min-w-0 flex-1 items-center gap-2 text-muted-foreground">
           <Sparkles size={16} className="shrink-0 text-indigo-400" />
           <p className="truncate text-sm">
-            <span className="font-medium text-slate-600">
+            <span className="font-medium text-foreground">
               {timeOfDayGreeting()}, {firstName}
             </span>
             <span className="hidden sm:inline"> — let&apos;s keep your career moving.</span>
@@ -127,7 +127,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label="Notifications"
-            className="relative text-slate-500 outline-none transition hover:text-slate-900"
+            className="relative text-muted-foreground outline-none transition hover:text-foreground"
           >
             <Bell size={21} />
             {notifications.length > 0 && (
@@ -142,9 +142,9 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
               <DropdownMenuLabel>Notifications</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {isLoadingNotifications ? (
-                <p className="px-3 py-4 text-sm text-slate-500">Loading...</p>
+                <p className="px-3 py-4 text-sm text-muted-foreground">Loading...</p>
               ) : notifications.length === 0 ? (
-                <p className="px-3 py-4 text-sm text-slate-500">You&apos;re all caught up.</p>
+                <p className="px-3 py-4 text-sm text-muted-foreground">You&apos;re all caught up.</p>
               ) : (
                 notifications.map((item) => (
                   <DropdownMenuItem
@@ -156,9 +156,9 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                       className={`mt-1.5 size-2 shrink-0 rounded-full ${TONE_DOT_CLASS[item.tone]}`}
                     />
                     <div className="min-w-0">
-                      <p className="font-medium text-slate-900">{item.title}</p>
+                      <p className="font-medium text-foreground">{item.title}</p>
                       {item.description && (
-                        <p className="mt-0.5 text-xs whitespace-normal text-slate-500">
+                        <p className="mt-0.5 text-xs whitespace-normal text-muted-foreground">
                           {item.description}
                         </p>
                       )}
@@ -174,7 +174,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
           type="button"
           aria-label="Toggle theme"
           onClick={toggleTheme}
-          className="text-slate-500 transition hover:text-slate-900"
+          className="text-muted-foreground transition hover:text-foreground"
         >
           {theme === "dark" ? <Sun size={21} /> : <Moon size={21} />}
         </button>
@@ -188,11 +188,11 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
             </Avatar>
 
             <div className="hidden md:block text-left">
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-foreground">
                 {displayName}
               </p>
 
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted-foreground">
                 {user?.role ?? "Candidate"}
               </p>
             </div>

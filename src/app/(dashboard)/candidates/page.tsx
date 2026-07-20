@@ -19,6 +19,7 @@ import AccessRestricted from "@/components/layout/AccessRestricted";
 import { MatchCard } from "@/components/matching/MatchCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -146,8 +147,8 @@ function CandidateDirectory() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Candidates</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-foreground">Candidates</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Search and filter the candidate pool by industry, function, experience,
           and skills.
         </p>
@@ -155,7 +156,7 @@ function CandidateDirectory() {
 
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4"
+        className="grid grid-cols-1 gap-3 rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-sm sm:grid-cols-2 lg:grid-cols-4"
       >
         <Input
           placeholder="Industry"
@@ -225,13 +226,13 @@ function CandidateDirectory() {
         <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-600">{error}</p>
       )}
 
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <Card className="p-0 overflow-hidden">
         {isLoading ? (
-          <p className="p-6 text-sm text-slate-500">Loading candidates...</p>
+          <p className="p-6 text-sm text-muted-foreground">Loading candidates...</p>
         ) : results.length === 0 ? (
           <div className="p-8 text-center">
-            <User className="mx-auto text-slate-300" size={32} />
-            <p className="mt-2 text-sm text-slate-500">
+            <User className="mx-auto text-muted-foreground" size={32} />
+            <p className="mt-2 text-sm text-muted-foreground">
               No candidates match these filters.
             </p>
           </div>
@@ -255,8 +256,8 @@ function CandidateDirectory() {
                   onClick={() => setSelected(candidate)}
                 >
                   <TableCell>
-                    <div className="font-medium text-slate-900">{candidate.full_name}</div>
-                    <div className="text-xs text-slate-500">{candidate.email}</div>
+                    <div className="font-medium text-foreground">{candidate.full_name}</div>
+                    <div className="text-xs text-muted-foreground">{candidate.email}</div>
                   </TableCell>
                   <TableCell>{candidate.current_designation ?? "—"}</TableCell>
                   <TableCell>{candidate.industry ?? "—"}</TableCell>
@@ -285,10 +286,10 @@ function CandidateDirectory() {
             </TableBody>
           </Table>
         )}
-      </div>
+      </Card>
 
       {total > 0 && (
-        <div className="flex items-center justify-between text-sm text-slate-500">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
           <p>
             Showing {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} of {total} candidates
           </p>
@@ -399,14 +400,14 @@ function CandidateDetailModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-card p-6 text-card-foreground shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">{candidate.full_name}</h2>
-            <p className="mt-1 text-sm text-slate-500">{candidate.email}</p>
-            <p className="text-sm text-slate-500">
+            <h2 className="text-xl font-bold text-foreground">{candidate.full_name}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{candidate.email}</p>
+            <p className="text-sm text-muted-foreground">
               {[candidate.phone, candidate.location].filter(Boolean).join(" · ")}
             </p>
             {candidate.current_designation && (
@@ -419,14 +420,14 @@ function CandidateDetailModal({
             type="button"
             aria-label="Close"
             onClick={onClose}
-            className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <X size={18} />
           </button>
         </div>
 
         {candidate.summary && (
-          <p className="mt-4 text-sm text-slate-700">{candidate.summary}</p>
+          <p className="mt-4 text-sm text-foreground">{candidate.summary}</p>
         )}
 
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
@@ -443,7 +444,7 @@ function CandidateDetailModal({
         </div>
 
         <section className="mt-6">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <Award size={16} className="text-indigo-600" />
             Skills & Certifications
           </h3>
@@ -459,13 +460,13 @@ function CandidateDetailModal({
               </Badge>
             ))}
             {candidate.skills.length === 0 && candidate.certifications.length === 0 && (
-              <p className="text-sm text-slate-500">No skills on file.</p>
+              <p className="text-sm text-muted-foreground">No skills on file.</p>
             )}
           </div>
         </section>
 
         <section className="mt-6">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <Briefcase size={16} className="text-indigo-600" />
             Experience
           </h3>
@@ -473,22 +474,22 @@ function CandidateDetailModal({
             <ul className="mt-2 space-y-3">
               {candidate.experiences.map((exp) => (
                 <li key={exp.id} className="border-l-2 border-indigo-100 pl-3">
-                  <p className="text-sm font-medium text-slate-900">
+                  <p className="text-sm font-medium text-foreground">
                     {[exp.title, exp.company].filter(Boolean).join(" · ")}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-muted-foreground">
                     {formatRange(exp.start_date, exp.end_date, exp.is_current)}
                   </p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="mt-2 text-sm text-slate-500">No experience on file.</p>
+            <p className="mt-2 text-sm text-muted-foreground">No experience on file.</p>
           )}
         </section>
 
         <section className="mt-6">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <GraduationCap size={16} className="text-indigo-600" />
             Education
           </h3>
@@ -496,21 +497,21 @@ function CandidateDetailModal({
             <ul className="mt-2 space-y-2">
               {candidate.education.map((edu) => (
                 <li key={edu.id}>
-                  <p className="text-sm font-medium text-slate-900">
+                  <p className="text-sm font-medium text-foreground">
                     {[edu.degree, edu.field_of_study].filter(Boolean).join(", ")}
                   </p>
-                  <p className="text-xs text-slate-500">{edu.institution}</p>
+                  <p className="text-xs text-muted-foreground">{edu.institution}</p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="mt-2 text-sm text-slate-500">No education on file.</p>
+            <p className="mt-2 text-sm text-muted-foreground">No education on file.</p>
           )}
         </section>
 
         <section className="mt-6">
           <div className="flex items-center justify-between gap-4">
-            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Target size={16} className="text-indigo-600" />
               Benchmark Matches
             </h3>
@@ -527,9 +528,9 @@ function CandidateDetailModal({
           )}
 
           {isLoadingMatches ? (
-            <p className="mt-2 text-sm text-slate-500">Loading matches...</p>
+            <p className="mt-2 text-sm text-muted-foreground">Loading matches...</p>
           ) : sortedMatches.length === 0 ? (
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-muted-foreground">
               No matches yet. Click &quot;Compute matches&quot; to score this candidate
               against active benchmarks.
             </p>

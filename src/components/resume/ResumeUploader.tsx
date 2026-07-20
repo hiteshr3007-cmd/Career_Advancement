@@ -116,28 +116,28 @@ export default function ResumeUploader({
         className={`flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-12 text-center transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30 ${
           isDragging
             ? "border-indigo-400 bg-indigo-50"
-            : "border-slate-200 bg-slate-50 hover:border-indigo-300 hover:bg-indigo-50/50"
+            : "border-border bg-muted hover:border-indigo-300 hover:bg-indigo-50/50"
         }`}
       >
         {selectedFile ? (
           <FileText className="text-indigo-600" size={36} />
         ) : (
-          <UploadCloud className="text-slate-400" size={36} />
+          <UploadCloud className="text-muted-foreground" size={36} />
         )}
 
         {selectedFile ? (
           <div>
-            <p className="font-medium text-slate-900">{selectedFile.name}</p>
-            <p className="text-sm text-slate-500">
+            <p className="font-medium text-foreground">{selectedFile.name}</p>
+            <p className="text-sm text-muted-foreground">
               {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
             </p>
           </div>
         ) : (
           <div>
-            <p className="font-medium text-slate-900">
+            <p className="font-medium text-foreground">
               Drag & drop your resume here, or click to browse
             </p>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Supports PDF, DOC, DOCX up to 10MB
             </p>
           </div>

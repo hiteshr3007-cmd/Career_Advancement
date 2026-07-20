@@ -10,6 +10,8 @@ import {
   YAxis,
 } from "recharts";
 
+import { Card } from "@/components/ui/card";
+
 interface AnalyticsChartProps {
   title: string;
   subtitle: string;
@@ -24,19 +26,19 @@ export default function AnalyticsChart({
   emptyMessage,
 }: AnalyticsChartProps) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <Card>
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-slate-900">
+        <h2 className="text-xl font-semibold text-foreground">
           {title}
         </h2>
 
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted-foreground">
           {subtitle}
         </p>
       </div>
 
       {data.length === 0 ? (
-        <div className="flex h-80 items-center justify-center text-center text-sm text-slate-400">
+        <div className="flex h-80 items-center justify-center text-center text-sm text-muted-foreground">
           {emptyMessage}
         </div>
       ) : (
@@ -84,6 +86,6 @@ export default function AnalyticsChart({
           </ResponsiveContainer>
         </div>
       )}
-    </div>
+    </Card>
   );
 }
