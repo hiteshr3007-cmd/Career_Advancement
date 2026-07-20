@@ -37,6 +37,13 @@ export const API_ENDPOINTS = {
       USER_DEACTIVATE: (userId: string) => `/admin/users/${userId}/deactivate`,
     },
 
+    SUPER_ADMIN: {
+      ADMINS: "/super-admin/admins",
+      ADMIN_ROLE: (userId: string) => `/super-admin/admins/${userId}/role`,
+      ADMIN_ACTIVATE: (userId: string) => `/super-admin/admins/${userId}/activate`,
+      ADMIN_DEACTIVATE: (userId: string) => `/super-admin/admins/${userId}/deactivate`,
+    },
+
     BENCHMARK: {
       LIST: "/benchmarks",
       DETAIL: (benchmarkId: string) => `/benchmarks/${benchmarkId}`,

@@ -14,11 +14,20 @@ from app.core.security import hash_password
 from app.database import get_db
 from app.models.candidate import CandidateProfile
 from app.models.user import User, UserRole
-from app.schemas.auth import AdminRoleUpdate, AdminUserCreate, UserOut
+from app.schemas.auth import ADMIN_TIER_ROLES, AdminRoleUpdate, AdminUserCreate, UserOut
 
 router = APIRouter(prefix="/admin", tags=["Administration"])
 
 ADMIN_ONLY = require_roles(UserRole.ADMINISTRATOR.value)
+
+# Administrator/super_admin accounts are managed exclusively by super admins
+# (see superadmin.py). A regular admin may neither mint these roles nor modify
+# an existing admin-tier account.
+ADMIN_TIER_VALUES = {r.value for r in ADMIN_TIER_ROLES}
+_ADMIN_TIER_FORBIDDEN = HTTPException(
+    status_code=status.HTTP_403_FORBIDDEN,
+    detail="Administrator and super_admin accounts are managed by a super admin only.",
+)
 
 
 @router.post("/users", response_model=UserOut, status_code=status.HTTP_201_CREATED)
@@ -27,6 +36,8 @@ def create_user(
     current_user: User = Depends(ADMIN_ONLY),
     db: Session = Depends(get_db),
 ):
+    if payload.role.value in ADMIN_TIER_VALUES:
+        raise _ADMIN_TIER_FORBIDDEN
     if db.query(User).filter(User.email == payload.email).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
@@ -76,6 +87,9 @@ def update_user_role(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     if user.id == current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot change your own role")
+    # A regular admin can neither target an admin-tier account nor promote one.
+    if user.role in ADMIN_TIER_VALUES or payload.role.value in ADMIN_TIER_VALUES:
+        raise _ADMIN_TIER_FORBIDDEN
 
     user.role = payload.role.value
 
@@ -106,6 +120,8 @@ def deactivate_user(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     if user.id == current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot deactivate your own account")
+    if user.role in ADMIN_TIER_VALUES:
+        raise _ADMIN_TIER_FORBIDDEN
     user.is_active = False
     db.commit()
     db.refresh(user)
@@ -121,6 +137,8 @@ def activate_user(
     user = db.get(User, user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    if user.role in ADMIN_TIER_VALUES:
+        raise _ADMIN_TIER_FORBIDDEN
     user.is_active = True
     db.commit()
     db.refresh(user)

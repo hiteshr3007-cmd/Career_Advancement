@@ -42,6 +42,42 @@ class AdminRoleUpdate(BaseModel):
     role: UserRole
 
 
+# Admin-tier roles are managed exclusively by super admins (see superadmin.py).
+# Regular admins cannot create or assign these; super admins cannot assign
+# anything outside this set through their endpoints.
+ADMIN_TIER_ROLES = {UserRole.ADMINISTRATOR, UserRole.SUPER_ADMIN}
+
+
+class SuperAdminUserCreate(BaseModel):
+    """Super-admin-only creation of an administrator (or super_admin) account."""
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+    full_name: str = Field(min_length=1, max_length=255)
+    role: UserRole = UserRole.ADMINISTRATOR
+
+    @field_validator("role")
+    @classmethod
+    def role_must_be_admin_tier(cls, value: UserRole) -> UserRole:
+        if value not in ADMIN_TIER_ROLES:
+            raise ValueError(
+                "Super admins manage administrator and super_admin accounts only. "
+                "Use /admin/users for candidate/staff accounts."
+            )
+        return value
+
+
+class SuperAdminRoleUpdate(BaseModel):
+    """Super-admin-only role change, constrained to the admin tier."""
+    role: UserRole
+
+    @field_validator("role")
+    @classmethod
+    def role_must_be_admin_tier(cls, value: UserRole) -> UserRole:
+        if value not in ADMIN_TIER_ROLES:
+            raise ValueError("A super admin can only assign administrator or super_admin here.")
+        return value
+
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
