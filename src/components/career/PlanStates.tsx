@@ -39,6 +39,42 @@ export function PlanBusyState({ message }: { message: string }) {
   );
 }
 
+// Shown when generation completed but matched zero benchmarks — most often
+// an industry/functional-area mismatch against active benchmark categories.
+// Distinct from "0 gaps found" (fully qualified), which is a real result.
+export function PlanHollowState({
+  isGenerating,
+  onGenerate,
+}: {
+  isGenerating: boolean;
+  onGenerate: () => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center">
+      <AlertTriangle className="mx-auto text-amber-500" size={28} />
+      <p className="mt-2 text-sm font-medium text-amber-900">
+        No active benchmarks matched your profile
+      </p>
+      <p className="mx-auto mt-1 max-w-md text-sm text-amber-700">
+        This usually means your profile's industry or functional area doesn't line
+        up with any active benchmark yet — not that you have no gaps to close.
+        Double-check your profile, or ask a recruiter/admin to add a benchmark for
+        your field, then regenerate.
+      </p>
+      <Button
+        type="button"
+        variant="outline"
+        className="mt-4"
+        onClick={onGenerate}
+        disabled={isGenerating}
+      >
+        <Sparkles size={14} data-icon="inline-start" />
+        {isGenerating ? "Regenerating..." : "Regenerate"}
+      </Button>
+    </div>
+  );
+}
+
 export function PlanFailedState({
   error,
   isGenerating,

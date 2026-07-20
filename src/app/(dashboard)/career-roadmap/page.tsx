@@ -2,7 +2,12 @@
 
 import { Award, Briefcase, FileText, Map, Sparkles, Users } from "lucide-react";
 
-import { PlanBusyState, PlanEmptyState, PlanFailedState } from "@/components/career/PlanStates";
+import {
+  PlanBusyState,
+  PlanEmptyState,
+  PlanFailedState,
+  PlanHollowState,
+} from "@/components/career/PlanStates";
 import AccessRestricted from "@/components/layout/AccessRestricted";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -80,6 +85,8 @@ function CareerRoadmapView() {
         <PlanBusyState message="Building your roadmap from your latest gap analysis. This usually takes a moment..." />
       ) : plan.status === "failed" ? (
         <PlanFailedState error={plan.error} isGenerating={isGenerating} onGenerate={generate} />
+      ) : plan.gap_report?.target_benchmarks.length === 0 ? (
+        <PlanHollowState isGenerating={isGenerating} onGenerate={generate} />
       ) : plan.roadmap ? (
         <RoadmapSections roadmap={plan.roadmap} llmUsed={plan.llm_used} notes={plan.notes} />
       ) : null}

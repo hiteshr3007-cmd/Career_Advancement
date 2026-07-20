@@ -2,7 +2,12 @@
 
 import { FileWarning, Sparkles, Target } from "lucide-react";
 
-import { PlanBusyState, PlanEmptyState, PlanFailedState } from "@/components/career/PlanStates";
+import {
+  PlanBusyState,
+  PlanEmptyState,
+  PlanFailedState,
+  PlanHollowState,
+} from "@/components/career/PlanStates";
 import AccessRestricted from "@/components/layout/AccessRestricted";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -83,6 +88,8 @@ function GapAnalysisView() {
         <PlanBusyState message="Analyzing your profile against active benchmarks. This usually takes a moment..." />
       ) : plan.status === "failed" ? (
         <PlanFailedState error={plan.error} isGenerating={isGenerating} onGenerate={generate} />
+      ) : plan.gap_report?.target_benchmarks.length === 0 ? (
+        <PlanHollowState isGenerating={isGenerating} onGenerate={generate} />
       ) : plan.gap_report ? (
         <GapReportSections report={plan.gap_report} llmUsed={plan.llm_used} notes={plan.notes} />
       ) : null}

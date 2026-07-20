@@ -2,7 +2,7 @@
 
 import { FormEvent, KeyboardEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, LogOut, Menu, Moon, Search, Sparkles } from "lucide-react";
+import { Bell, LogOut, Menu, Moon, Search, Sparkles, Sun } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -17,6 +17,7 @@ import {
 import { useNotifications } from "@/hooks/useNotifications";
 import { isViewerRole } from "@/lib/roles";
 import { useAuth } from "@/store/auth-context";
+import { useTheme } from "@/store/theme-context";
 import { NotificationTone } from "@/types/notification";
 
 interface TopbarProps {
@@ -38,6 +39,7 @@ const TONE_DOT_CLASS: Record<NotificationTone, string> = {
 
 export default function Topbar({ onMenuClick }: TopbarProps) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const { notifications, isLoading: isLoadingNotifications } = useNotifications();
@@ -171,11 +173,10 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
         <button
           type="button"
           aria-label="Toggle theme"
-          disabled
-          title="Theme toggle is coming soon"
-          className="text-slate-500 transition hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={toggleTheme}
+          className="text-slate-500 transition hover:text-slate-900"
         >
-          <Moon size={21} />
+          {theme === "dark" ? <Sun size={21} /> : <Moon size={21} />}
         </button>
 
         <DropdownMenu>
