@@ -32,6 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but the example template must be committed (F-2): it's what Section 3.3's
+# `cp .env.example .env` copies from.
+!.env.example
+!backend/.env.example
 
 # vercel
 .vercel

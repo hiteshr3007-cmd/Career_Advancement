@@ -3,6 +3,8 @@
 // Backend roles (models/user.py): candidate | recruiter | hr_reviewer | employer | administrator.
 export const CANDIDATE_ROLE = "Candidate";
 export const ADMINISTRATOR_ROLE = "Administrator";
+// formatRole() turns "super_admin" -> "Super admin".
+export const SUPER_ADMIN_ROLE = "Super admin";
 export const VIEWER_ROLES = ["Recruiter", "Hr reviewer", "Employer", "Administrator"];
 
 export function isCandidate(role?: string): boolean {
@@ -15,4 +17,8 @@ export function isViewerRole(role?: string): boolean {
 
 export function isAdmin(role?: string): boolean {
   return role === ADMINISTRATOR_ROLE;
+}
+
+export function isSuperAdmin(role?: string): boolean {
+  return role === SUPER_ADMIN_ROLE;
 }

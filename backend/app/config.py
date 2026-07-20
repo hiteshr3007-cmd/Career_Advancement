@@ -41,6 +41,11 @@ class Settings(BaseSettings):
     # Nobody outside this list can ever obtain the administrator role.
     admin_emails: str = ""
 
+    # Comma-separated allowlist of emails that become super admins on register.
+    # A super admin's sole job is CRUD over administrator/super_admin accounts.
+    # Takes precedence over admin_emails if an email appears on both.
+    super_admin_emails: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
@@ -48,6 +53,10 @@ class Settings(BaseSettings):
     @property
     def admin_email_set(self) -> set[str]:
         return {e.strip().lower() for e in self.admin_emails.split(",") if e.strip()}
+
+    @property
+    def super_admin_email_set(self) -> set[str]:
+        return {e.strip().lower() for e in self.super_admin_emails.split(",") if e.strip()}
 
 
 @lru_cache

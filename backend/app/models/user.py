@@ -16,6 +16,7 @@ class UserRole(str, Enum):
     HR_REVIEWER = "hr_reviewer"        # company staff; admin-created; views all candidates + manages benchmarks
     EMPLOYER = "employer"              # company staff; admin-created; views all candidates + manages benchmarks
     ADMINISTRATOR = "administrator"    # designated by email allowlist; full control incl. user management
+    SUPER_ADMIN = "super_admin"        # designated by super-admin allowlist; sole role that manages administrator/super_admin accounts
 
 
 class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):

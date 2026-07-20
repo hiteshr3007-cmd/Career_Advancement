@@ -25,6 +25,9 @@ class Phase3Settings:
     # Ollama's OpenAI-compatible endpoint. For real OpenAI, unset/blank this.
     llm_base_url: str = os.getenv("PHASE3_LLM_BASE_URL", "http://localhost:11434/v1")
     llm_model: str = os.getenv("PHASE3_LLM_MODEL", "llama3.1:8b")
+    # Stronger model tried only when the primary model's schema-constrained
+    # output still fails to conform (e.g. empty phases). Set blank to disable.
+    llm_fallback_model: str = os.getenv("PHASE3_LLM_FALLBACK_MODEL", "qwen2.5:7b")
     llm_api_key: str = os.getenv("PHASE3_LLM_API_KEY", "ollama")
     llm_timeout: float = float(os.getenv("PHASE3_LLM_TIMEOUT", "90"))
 
