@@ -23,8 +23,57 @@ from phase3.schemas import (
 MAX_SKILL_RECS = 8
 
 
-def _learning_recommendations(report: DetailedGapReport) -> tuple[list[LearningRecommendation], list[str]]:
+def _resource_key(title: str, provider: str | None) -> tuple[str, str]:
+    """Identity of a resource for dedup — same title+provider is the same
+    recommendation regardless of which skill/cert gap surfaced it."""
+    return (title.strip().lower(), (provider or "").strip().lower())
+
+
+def _certification_recommendations(
+    report: DetailedGapReport, seen: set[tuple[str, str]]
+) -> list[LearningRecommendation]:
     recs: list[LearningRecommendation] = []
+    for cert in report.missing_certifications:
+        res = resource_for_certification(cert)
+        if res:
+            rec = LearningRecommendation(
+                skill=cert,
+                title=res["title"],
+                provider=res["provider"],
+                resource_type=res["resource_type"],
+                url=res.get("url"),
+                rationale="Required/preferred certification missing from your profile.",
+            )
+        else:
+            rec = LearningRecommendation(
+                skill=cert,
+                title=f"Obtain: {cert}",
+                provider="(research accredited provider)",
+                resource_type="certification",
+                url=None,
+                rationale="Required/preferred certification missing from your profile.",
+            )
+        key = _resource_key(rec.title, rec.provider)
+        if key in seen:
+            continue
+        seen.add(key)
+        recs.append(rec)
+    return recs
+
+
+def _learning_recommendations(
+    report: DetailedGapReport, seen: set[tuple[str, str]]
+) -> tuple[list[LearningRecommendation], list[LearningRecommendation], list[str]]:
+    """Returns (learning, extra_certifications, uncatalogued).
+
+    A skill's catalog can contain certification-type resources (e.g. CKA under
+    'kubernetes'); those belong in the certifications bucket, not learning, and
+    must not duplicate a cert already recommended from missing_certifications.
+    `seen` carries the identity of every resource recommended so far so nothing
+    is surfaced twice across either list.
+    """
+    learning: list[LearningRecommendation] = []
+    extra_certs: list[LearningRecommendation] = []
     uncatalogued: list[str] = []
     for gap in report.skill_gaps[:MAX_SKILL_RECS]:
         resources = resources_for_skill(gap.skill)
@@ -32,7 +81,11 @@ def _learning_recommendations(report: DetailedGapReport) -> tuple[list[LearningR
             uncatalogued.append(gap.skill)
             continue
         for res in resources:
-            recs.append(LearningRecommendation(
+            key = _resource_key(res["title"], res["provider"])
+            if key in seen:
+                continue
+            seen.add(key)
+            rec = LearningRecommendation(
                 skill=gap.skill,
                 title=res["title"],
                 provider=res["provider"],
@@ -40,33 +93,12 @@ def _learning_recommendations(report: DetailedGapReport) -> tuple[list[LearningR
                 url=res.get("url"),
                 rationale=f"Closes a {gap.priority_band}-priority {gap.kind} skill gap "
                           f"(needed by: {', '.join(gap.needed_by_benchmarks) or 'target role'}).",
-            ))
-    return recs, uncatalogued
-
-
-def _certification_recommendations(report: DetailedGapReport) -> list[LearningRecommendation]:
-    recs: list[LearningRecommendation] = []
-    for cert in report.missing_certifications:
-        res = resource_for_certification(cert)
-        if res:
-            recs.append(LearningRecommendation(
-                skill=cert,
-                title=res["title"],
-                provider=res["provider"],
-                resource_type=res["resource_type"],
-                url=res.get("url"),
-                rationale="Required/preferred certification missing from your profile.",
-            ))
-        else:
-            recs.append(LearningRecommendation(
-                skill=cert,
-                title=f"Obtain: {cert}",
-                provider="(research accredited provider)",
-                resource_type="certification",
-                url=None,
-                rationale="Required/preferred certification missing from your profile.",
-            ))
-    return recs
+            )
+            if res["resource_type"] == "certification":
+                extra_certs.append(rec)
+            else:
+                learning.append(rec)
+    return learning, extra_certs, uncatalogued
 
 
 def _resume_improvements(report: DetailedGapReport) -> list[ResumeImprovement]:
@@ -104,10 +136,15 @@ def build_recommendations(
 ) -> tuple[RecommendationSet, list[str]]:
     """Returns (RecommendationSet, notes). Notes surface skills with no catalog
     entry so silent coverage gaps are visible."""
-    learning, uncatalogued = _learning_recommendations(report)
+    # Shared identity set so the same resource never lands in two buckets
+    # (e.g. CKA from missing_certifications AND from the 'kubernetes' catalog).
+    seen: set[tuple[str, str]] = set()
+    certifications = _certification_recommendations(report, seen)
+    learning, extra_certs, uncatalogued = _learning_recommendations(report, seen)
+    certifications.extend(extra_certs)
     rec_set = RecommendationSet(
         learning=learning,
-        certifications=_certification_recommendations(report),
+        certifications=certifications,
         resume_improvements=_resume_improvements(report),
         career_development=_career_development(report, candidate),
     )

@@ -15,6 +15,7 @@ def get_provider() -> LLMProvider:
             base_url=settings.llm_base_url if provider != "openai" else None,
             api_key=settings.llm_api_key,
             model=settings.llm_model,
+            fallback_model=settings.llm_fallback_model if provider != "openai" else None,
             timeout=settings.llm_timeout,
         )
 
