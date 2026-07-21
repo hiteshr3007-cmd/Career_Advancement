@@ -46,14 +46,16 @@ def _send(to_email: str, subject: str, body: str) -> None:
         logger.exception("Failed to send email to %s", to_email)
 
 
-def send_password_reset_email(to_email: str, full_name: str, token: str) -> None:
-    reset_link = f"{settings.frontend_base_url}/reset-password?token={token}"
-    subject = "Reset your Career Advancement password"
+def send_password_reset_email(to_email: str, full_name: str, code: str) -> None:
+    reset_page = f"{settings.frontend_base_url}/reset-password"
+    subject = "Your Career Advancement password reset code"
     body = (
         f"Hi {full_name},\n\n"
-        "We received a request to reset your Career Advancement password. "
-        "This link expires in 1 hour:\n\n"
-        f"{reset_link}\n\n"
+        "We received a request to reset your Career Advancement password.\n\n"
+        f"Your reset code is: {code}\n\n"
+        "Enter it on the reset page along with your new password. "
+        "This code expires in 15 minutes.\n\n"
+        f"Reset page: {reset_page}\n\n"
         "If you didn't request this, you can safely ignore this email."
     )
     _send(to_email, subject, body)

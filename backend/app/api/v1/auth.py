@@ -35,6 +35,18 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 REFRESH_COOKIE_NAME = "refresh_token"
 REFRESH_COOKIE_PATH = "/api/v1/auth"
 
+# Password-reset code (OTP) settings.
+RESET_CODE_TTL_MINUTES = 15
+RESET_CODE_MAX_ATTEMPTS = 5
+# Same generic failure message for every confirm failure (missing user, wrong /
+# expired / locked code) so the endpoint never reveals which one it was.
+_RESET_GENERIC_ERROR = "Invalid or expired code"
+
+
+def _generate_reset_code() -> str:
+    """6-digit numeric code, zero-padded."""
+    return f"{secrets.randbelow(1_000_000):06d}"
+
 
 def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
     response.set_cookie(
@@ -172,37 +184,62 @@ def request_password_reset(
 ):
     user = db.query(User).filter(User.email == payload.email).first()
     if user:
-        token = secrets.token_urlsafe(32)
+        # Invalidate any earlier unused codes so only the newest one works.
+        db.query(PasswordResetToken).filter(
+            PasswordResetToken.user_id == user.id,
+            PasswordResetToken.used.is_(False),
+        ).update({"used": True})
+        code = _generate_reset_code()
         db.add(
             PasswordResetToken(
                 user_id=user.id,
-                token=token,
-                expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+                token=code,
+                expires_at=datetime.now(timezone.utc) + timedelta(minutes=RESET_CODE_TTL_MINUTES),
             )
         )
         db.commit()
         # Sent after the response so a slow/unreachable mail server can't delay
         # or affect this endpoint's anti-enumeration behavior either way.
-        background_tasks.add_task(send_password_reset_email, user.email, user.full_name, token)
-    return {"detail": "If that email exists, a reset link has been sent."}
+        background_tasks.add_task(send_password_reset_email, user.email, user.full_name, code)
+    return {"detail": "If that email exists, a reset code has been sent."}
 
 
 @router.post("/password-reset/confirm", status_code=status.HTTP_200_OK)
 def confirm_password_reset(payload: PasswordResetConfirm, db: Session = Depends(get_db)):
-    reset_entry = (
-        db.query(PasswordResetToken).filter(PasswordResetToken.token == payload.token).first()
+    generic_error = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST, detail=_RESET_GENERIC_ERROR
     )
-    if (
-        not reset_entry
-        or reset_entry.used
-        or reset_entry.expires_at < datetime.now(timezone.utc)
-    ):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired reset token")
-
-    user = db.get(User, reset_entry.user_id)
+    user = db.query(User).filter(User.email == payload.email).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise generic_error
 
+    # Newest unused code for this user.
+    reset_entry = (
+        db.query(PasswordResetToken)
+        .filter(
+            PasswordResetToken.user_id == user.id,
+            PasswordResetToken.used.is_(False),
+        )
+        .order_by(PasswordResetToken.expires_at.desc())
+        .first()
+    )
+    if not reset_entry or reset_entry.expires_at < datetime.now(timezone.utc):
+        raise generic_error
+
+    # Lock the code once too many wrong guesses have been made (brute-force cap).
+    if reset_entry.attempts >= RESET_CODE_MAX_ATTEMPTS:
+        reset_entry.used = True
+        db.commit()
+        raise generic_error
+
+    if not secrets.compare_digest(reset_entry.token, payload.code):
+        reset_entry.attempts += 1
+        if reset_entry.attempts >= RESET_CODE_MAX_ATTEMPTS:
+            reset_entry.used = True  # burn the code after the final wrong try
+        db.commit()
+        raise generic_error
+
+    # Correct code — reset the password, consume the code, revoke sessions.
     user.hashed_password = hash_password(payload.new_password)
     reset_entry.used = True
     db.query(RefreshToken).filter(RefreshToken.user_id == user.id).update({"revoked": True})

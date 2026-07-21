@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -57,6 +57,11 @@ class PasswordResetToken(Base, UUIDPrimaryKeyMixin):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    token: Mapped[str] = mapped_column(String(512), unique=True, nullable=False, index=True)
+    # Holds the short numeric reset CODE (OTP). Not unique — codes are per-user
+    # and short, so uniqueness is scoped by (user_id, most-recent, unused). Kept
+    # indexed for lookup.
+    token: Mapped[str] = mapped_column(String(512), nullable=False, index=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Failed verification attempts against this code; the code locks at the max.
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False, server_default="0")
