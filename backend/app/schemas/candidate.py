@@ -1,7 +1,7 @@
 import uuid
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SkillOut(BaseModel):
@@ -103,7 +103,9 @@ class CandidateSearchResultOut(CandidateProfileOut):
     """
 
     full_name: str
-    email: EmailStr
+    # Plain str, not EmailStr — response model echoing a stored address; avoids
+    # one bad row 500-ing the directory. See UserOut in schemas/auth.py.
+    email: str
 
 
 class CandidateSearchFilters(BaseModel):

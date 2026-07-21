@@ -112,7 +112,12 @@ class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
-    email: EmailStr
+    # Plain str, not EmailStr: this is a RESPONSE model echoing an already-stored
+    # address. Re-validating on output adds no safety and makes one legacy/edge
+    # row (e.g. a reserved-TLD test account like ...@test.local, which
+    # email-validator 2.2+ rejects) 500 the entire list endpoint. Input schemas
+    # keep EmailStr so bad addresses are still rejected at write time.
+    email: str
     full_name: str
     role: str
     is_active: bool
