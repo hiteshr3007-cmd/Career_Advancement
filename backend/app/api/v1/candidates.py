@@ -25,6 +25,7 @@ from app.schemas.candidate import (
     ExperienceOut,
     SkillIn,
     SkillOut,
+    SkillUpdate,
 )
 
 router = APIRouter(prefix="/candidates", tags=["Candidate Management"])
@@ -109,6 +110,28 @@ def add_skill(
     # new entry immediately, in-memory, for recompute_completeness.
     profile.skills.append(skill)
     recompute_completeness(profile)
+    db.commit()
+    db.refresh(skill)
+    return skill
+
+
+@router.patch("/me/skills/{skill_id}", response_model=SkillOut)
+def update_skill(
+    skill_id: uuid.UUID,
+    payload: SkillUpdate,
+    current_user: User = Depends(require_roles(UserRole.CANDIDATE.value)),
+    db: Session = Depends(get_db),
+):
+    """Update an existing skill — primarily to set the manual 1-5 self-score
+    used by the scorecard, but also proficiency/category."""
+    profile = _get_own_profile(db, current_user)
+    skill = db.query(CandidateSkill).filter(
+        CandidateSkill.id == skill_id, CandidateSkill.candidate_id == profile.id
+    ).first()
+    if not skill:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Skill not found")
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(skill, field, value)
     db.commit()
     db.refresh(skill)
     return skill

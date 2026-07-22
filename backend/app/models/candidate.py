@@ -2,7 +2,7 @@ import uuid
 from datetime import date
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import JSON, Boolean, Date, Float, ForeignKey, String, Text
+from sqlalchemy import JSON, Boolean, Date, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -70,6 +70,8 @@ class CandidateSkill(Base, UUIDPrimaryKeyMixin):
     proficiency: Mapped[str | None] = mapped_column(String(50))  # beginner/intermediate/advanced/expert
     category: Mapped[str | None] = mapped_column(String(100))  # technical/soft/domain
     source: Mapped[str] = mapped_column(String(20), default="resume")  # resume/manual
+    # Optional user self-rating, 1-5, used by the scorecard's skill scoring.
+    manual_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     candidate: Mapped["CandidateProfile"] = relationship("CandidateProfile", back_populates="skills")
 

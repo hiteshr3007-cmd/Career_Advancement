@@ -11,12 +11,21 @@ class SkillOut(BaseModel):
     proficiency: str | None = None
     category: str | None = None
     source: str
+    manual_score: int | None = None  # user self-rating, 1-5
 
 
 class SkillIn(BaseModel):
     name: str
     proficiency: str | None = None
     category: str | None = None
+    manual_score: int | None = Field(default=None, ge=1, le=5)
+
+
+class SkillUpdate(BaseModel):
+    """Partial update for an existing skill (e.g. set the manual 1-5 score)."""
+    proficiency: str | None = None
+    category: str | None = None
+    manual_score: int | None = Field(default=None, ge=1, le=5)
 
 
 class EducationIn(BaseModel):
