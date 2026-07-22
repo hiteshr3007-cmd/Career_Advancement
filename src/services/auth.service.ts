@@ -57,7 +57,8 @@ const authService = {
 
     resetPassword: async (data: ResetPasswordRequest) => {
         const response = await api.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
-            token: data.token,
+            email: data.email,
+            code: data.code,
             new_password: data.new_password,
         });
         return response.data;

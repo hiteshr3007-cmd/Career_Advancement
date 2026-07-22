@@ -15,7 +15,8 @@ export interface RegisterRequest {
   }
 
   export interface ResetPasswordRequest {
-    token: string;
+    email: string;
+    code: string;
     new_password: string;
   }
 
