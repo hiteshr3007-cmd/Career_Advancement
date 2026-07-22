@@ -135,7 +135,6 @@ const navItems: NavItem[] = [
   { label: "Admin", href: "/admin", icon: <IconAdmin />, visible: isAdmin },
   { label: "Super Admin", href: "/super-admin", icon: <IconSuperAdmin />, visible: isSuperAdmin },
   { label: "My Resumes", href: "/upload", icon: <IconUpload />, visible: isCandidate },
-  { label: "Candidate Profile", href: "/profile", icon: <IconProfile />, visible: isCandidate },
   { label: "Career Matches", href: "/matches", icon: <IconMatches />, visible: isCandidate },
   { label: "Gap Analysis", href: "/gap-analysis", icon: <IconGap />, visible: isCandidate },
   {
@@ -148,7 +147,11 @@ const navItems: NavItem[] = [
   { label: "Scorecard", href: "/scorecard", icon: <IconScorecard />, visible: isCandidate },
 ];
 
-const settingsItem: NavItem = { label: "Settings", href: "/settings", icon: <IconSettings /> };
+// "About me" items, grouped apart from the feature nav above the divider.
+const bottomItems: NavItem[] = [
+  { label: "Candidate Profile", href: "/profile", icon: <IconProfile />, visible: isCandidate },
+  { label: "Settings", href: "/settings", icon: <IconSettings /> },
+];
 
 interface SidebarProps {
   isOpen: boolean;
@@ -159,6 +162,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
   const visibleItems = navItems.filter((item) => !item.visible || item.visible(user?.role));
+  const visibleBottomItems = bottomItems.filter(
+    (item) => !item.visible || item.visible(user?.role)
+  );
 
   return (
     <>
@@ -217,19 +223,22 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           })}
         </nav>
 
-        <div className="border-t border-slate-800 px-3 py-4">
-          <Link
-            href={settingsItem.href}
-            onClick={onClose}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-              pathname === settingsItem.href
-                ? "bg-indigo-600 text-white"
-                : "text-slate-300 hover:bg-slate-800 hover:text-white"
-            }`}
-          >
-            {settingsItem.icon}
-            <span>{settingsItem.label}</span>
-          </Link>
+        <div className="space-y-1 border-t border-slate-800 px-3 py-4">
+          {visibleBottomItems.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              onClick={onClose}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                pathname === item.href
+                  ? "bg-indigo-600 text-white"
+                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
+              }`}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </Link>
+          ))}
         </div>
       </aside>
     </>
