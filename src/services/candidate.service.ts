@@ -38,6 +38,15 @@ const candidateService = {
     return response.data;
   },
 
+  updateSkill: async (
+    skillId: string,
+    payload: { manual_score?: number | null; proficiency?: string | null; category?: string | null }
+  ): Promise<SkillOut> => {
+    const response = await api.patch<SkillOut>(API_ENDPOINTS.CANDIDATE.SKILL(skillId), payload);
+    window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
+    return response.data;
+  },
+
   deleteSkill: async (skillId: string): Promise<void> => {
     await api.delete(API_ENDPOINTS.CANDIDATE.SKILL(skillId));
     window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));

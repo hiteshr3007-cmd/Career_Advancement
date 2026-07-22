@@ -75,6 +75,16 @@ function IconRoadmap() {
     </svg>
   );
 }
+function IconScorecard() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M8 21h8" />
+      <path d="M12 17v4" />
+      <rect x="3" y="4" width="18" height="13" rx="2" />
+      <path d="M7 13l3-3 3 2 4-5" />
+    </svg>
+  );
+}
 function IconAdmin() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -120,6 +130,7 @@ const navItems: NavItem[] = [
   { label: "Career Matches", href: "/matches", icon: <IconMatches />, visible: isCandidate },
   { label: "Gap Analysis", href: "/gap-analysis", icon: <IconGap />, visible: isCandidate },
   { label: "Career Roadmap", href: "/career-roadmap", icon: <IconRoadmap />, visible: isCandidate },
+  { label: "Scorecard", href: "/scorecard", icon: <IconScorecard />, visible: isCandidate },
 ];
 
 const settingsItem: NavItem = { label: "Settings", href: "/settings", icon: <IconSettings /> };

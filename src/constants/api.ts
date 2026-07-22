@@ -62,4 +62,9 @@ export const API_ENDPOINTS = {
       CANDIDATE: (candidateId: string) => `/career/candidates/${candidateId}`,
       CANDIDATE_GENERATE: (candidateId: string) => `/career/candidates/${candidateId}/generate`,
     },
+
+    SCORECARD: {
+      ME: "/scorecard/me",
+      CANDIDATE: (candidateId: string) => `/scorecard/candidates/${candidateId}`,
+    },
   };

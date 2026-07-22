@@ -5,6 +5,7 @@ export interface SkillOut {
     name: string;
     proficiency?: string | null;
     category?: string | null;
+    manual_score?: number | null;
     source: string;
   }
 
