@@ -67,6 +67,15 @@ function IconGap() {
     </svg>
   );
 }
+function IconRecommendations() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M9 18h6" />
+      <path d="M10 21h4" />
+      <path d="M12 3a6 6 0 0 0-4 10.5c.5.5.8 1.1.9 1.8L9 16h6l.1-.7c.1-.7.4-1.3.9-1.8A6 6 0 0 0 12 3z" />
+    </svg>
+  );
+}
 function IconRoadmap() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -129,6 +138,12 @@ const navItems: NavItem[] = [
   { label: "Candidate Profile", href: "/profile", icon: <IconProfile />, visible: isCandidate },
   { label: "Career Matches", href: "/matches", icon: <IconMatches />, visible: isCandidate },
   { label: "Gap Analysis", href: "/gap-analysis", icon: <IconGap />, visible: isCandidate },
+  {
+    label: "Recommendations",
+    href: "/recommendations",
+    icon: <IconRecommendations />,
+    visible: isCandidate,
+  },
   { label: "Career Roadmap", href: "/career-roadmap", icon: <IconRoadmap />, visible: isCandidate },
   { label: "Scorecard", href: "/scorecard", icon: <IconScorecard />, visible: isCandidate },
 ];
