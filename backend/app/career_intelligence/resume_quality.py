@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import re
 
-from phase3.schemas import CandidateSnapshot, ResumeIssue
+from app.career_intelligence.schemas import CandidateSnapshot, ResumeIssue
 
 # Strong resume action verbs — a bullet that starts with one reads as an
 # achievement; one that doesn't often reads as a passive duty.

@@ -35,6 +35,17 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     embedding_model: str = "text-embedding-3-small"
 
+    # Career-Intelligence LLM (Phase 3). Optional local Ollama by default; the
+    # pipeline degrades to deterministic output when unreachable. Env vars are
+    # PHASE3_LLM_* (pydantic maps them to these fields automatically).
+    phase3_llm_enabled: bool = True
+    phase3_llm_provider: str = "ollama"
+    phase3_llm_base_url: str = "http://localhost:11434/v1"
+    phase3_llm_model: str = "llama3.1:8b"
+    phase3_llm_fallback_model: str = "qwen2.5:7b"
+    phase3_llm_api_key: str = "ollama"
+    phase3_llm_timeout: float = 90.0
+
     cors_origins: str = "http://localhost:3000"
 
     # Base URL of the frontend, used to build links embedded in emails (e.g.

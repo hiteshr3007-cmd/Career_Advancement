@@ -20,7 +20,7 @@ from app.models.benchmark import Benchmark
 from app.models.candidate import CandidateProfile, CandidateSkill
 from app.models.match import CandidateBenchmarkMatch
 from app.services.career_plan import build_candidate_snapshot
-from phase3.resume_quality import analyze_resume_quality
+from app.career_intelligence.resume_quality import analyze_resume_quality
 
 PROFICIENCY_100 = {"beginner": 40, "intermediate": 60, "advanced": 80, "expert": 100}
 PROJECTS_TARGET = 5

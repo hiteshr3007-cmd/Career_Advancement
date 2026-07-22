@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import json
 
-from phase3.llm.base import LLMProvider, LLMUnavailable
+from app.career_intelligence.llm.base import LLMProvider, LLMUnavailable
 
 
 def _conforms(result: dict, schema: dict) -> bool:

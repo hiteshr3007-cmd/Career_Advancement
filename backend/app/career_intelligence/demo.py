@@ -1,4 +1,4 @@
-"""Standalone Phase 3 demo — run with:  python -m phase3.demo
+"""Standalone Phase 3 demo — run with:  python -m app.career_intelligence.demo
 
 Builds a realistic candidate + Phase-2-style benchmark matches (the exact shape
 CandidateBenchmarkMatch produces), runs the full pipeline, and prints the three
@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import json
 
-from phase3.pipeline import run_phase3
-from phase3.schemas import (
+from app.career_intelligence.pipeline import run_phase3
+from app.career_intelligence.schemas import (
     BenchmarkMatchInput,
     CandidateSnapshot,
     CertificationGap,

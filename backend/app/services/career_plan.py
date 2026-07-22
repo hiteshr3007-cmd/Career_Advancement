@@ -18,8 +18,8 @@ from app.models.benchmark import Benchmark
 from app.models.candidate import CandidateProfile
 from app.models.career_plan import CareerPlan
 from app.models.match import CandidateBenchmarkMatch
-from phase3.pipeline import run_phase3
-from phase3.schemas import (
+from app.career_intelligence.pipeline import run_phase3
+from app.career_intelligence.schemas import (
     BenchmarkMatchInput,
     CandidateSnapshot,
     EducationSnapshot,

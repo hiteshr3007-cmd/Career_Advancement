@@ -7,7 +7,7 @@ fallback the pipeline uses when the LLM is unavailable. The LLM version
 """
 from __future__ import annotations
 
-from phase3.schemas import (
+from app.career_intelligence.schemas import (
     CareerRoadmap,
     DetailedGapReport,
     RecommendationSet,

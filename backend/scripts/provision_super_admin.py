@@ -5,13 +5,17 @@ regular admins, they can also be granted via the SUPER_ADMIN_EMAILS allowlist
 at registration; this script is the bootstrap path for a fresh environment with
 no allowlisted email yet.
 
-Usage:
-    python provision_super_admin.py <email> <password> ["Full Name"]
+Usage (run from the backend/ dir with the venv active):
+    python scripts/provision_super_admin.py <email> <password> ["Full Name"]
 
-Requires the same environment as the app (DATABASE_URL). Run from the repo root
-with the venv active so `app` is importable.
+Requires the same environment as the app (DATABASE_URL).
 """
+import os
 import sys
+
+# Make `app` importable when run as `python scripts/provision_super_admin.py`
+# (the parent of scripts/ is the backend root).
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.core.security import hash_password
 from app.database import SessionLocal
@@ -49,7 +53,7 @@ def provision_super_admin(email: str, password: str, full_name: str = "Super Adm
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print('Usage: python provision_super_admin.py <email> <password> ["Full Name"]')
+        print('Usage: python scripts/provision_super_admin.py <email> <password> ["Full Name"]')
         raise SystemExit(1)
     email = sys.argv[1]
     password = sys.argv[2]

@@ -7,8 +7,8 @@ LLMUnavailable, and callers (pipeline.py) fall back to deterministic output.
 """
 from __future__ import annotations
 
-from phase3.llm.base import LLMProvider, LLMUnavailable
-from phase3.schemas import (
+from app.career_intelligence.llm.base import LLMProvider, LLMUnavailable
+from app.career_intelligence.schemas import (
     CandidateSnapshot,
     CareerRoadmap,
     DetailedGapReport,

@@ -10,8 +10,8 @@ invents resources.
 """
 from __future__ import annotations
 
-from phase3.course_catalog import resource_for_certification, resources_for_skill
-from phase3.schemas import (
+from app.career_intelligence.course_catalog import resource_for_certification, resources_for_skill
+from app.career_intelligence.schemas import (
     CandidateSnapshot,
     DetailedGapReport,
     LearningRecommendation,

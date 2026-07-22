@@ -8,13 +8,13 @@ the deterministic output — the function never raises on LLM problems.
 """
 from __future__ import annotations
 
-from phase3.config import settings
-from phase3.gap_analysis import build_gap_report
-from phase3.llm.base import LLMUnavailable
-from phase3.narrative import generate_roadmap_llm, narrate_gap_report, narrate_recommendations
-from phase3.recommendations import build_recommendations
-from phase3.roadmap import build_roadmap_scaffold
-from phase3.schemas import BenchmarkMatchInput, CandidateSnapshot, Phase3Result
+from app.config import get_settings
+from app.career_intelligence.gap_analysis import build_gap_report
+from app.career_intelligence.llm.base import LLMUnavailable
+from app.career_intelligence.narrative import generate_roadmap_llm, narrate_gap_report, narrate_recommendations
+from app.career_intelligence.recommendations import build_recommendations
+from app.career_intelligence.roadmap import build_roadmap_scaffold
+from app.career_intelligence.schemas import BenchmarkMatchInput, CandidateSnapshot, Phase3Result
 
 
 def _pick_target_role(matches: list[BenchmarkMatchInput]) -> str | None:
@@ -39,12 +39,12 @@ def run_phase3(
     roadmap = build_roadmap_scaffold(gap_report, recommendations, target_role)
 
     # ---- Optional LLM enhancement (graceful) ----
-    want_llm = settings.llm_enabled if use_llm is None else use_llm
+    want_llm = get_settings().phase3_llm_enabled if use_llm is None else use_llm
     llm_used = False
 
     if want_llm:
         try:
-            from phase3.llm.factory import get_provider
+            from app.career_intelligence.llm.factory import get_provider
             provider = get_provider()
             if not provider.health():
                 raise LLMUnavailable(f"LLM provider '{provider.name}' not reachable")

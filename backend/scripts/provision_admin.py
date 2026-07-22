@@ -4,13 +4,17 @@ Admin accounts cannot be created via the public /auth/register endpoint (that
 would be a privilege-escalation hole — it returns 422 for role=administrator).
 Use this script for the initial admin / ops provisioning.
 
-Usage:
-    python provision_admin.py <email> <password> ["Full Name"]
+Usage (run from the backend/ dir with the venv active):
+    python scripts/provision_admin.py <email> <password> ["Full Name"]
 
-Requires the same environment as the app (DATABASE_URL). Run from the repo root
-with the venv active so `app` is importable.
+Requires the same environment as the app (DATABASE_URL).
 """
+import os
 import sys
+
+# Make `app` importable when run as `python scripts/provision_admin.py`
+# (the parent of scripts/ is the backend root).
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.core.security import hash_password
 from app.database import SessionLocal
@@ -48,7 +52,7 @@ def provision_admin(email: str, password: str, full_name: str = "Administrator")
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: python provision_admin.py <email> <password> [\"Full Name\"]")
+        print("Usage: python scripts/provision_admin.py <email> <password> [\"Full Name\"]")
         raise SystemExit(1)
     email = sys.argv[1]
     password = sys.argv[2]

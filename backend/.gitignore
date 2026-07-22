@@ -9,3 +9,6 @@ venv/
 dist/
 build/
 .DS_Store
+
+# Claude Code skills/tooling — not application code
+agent/

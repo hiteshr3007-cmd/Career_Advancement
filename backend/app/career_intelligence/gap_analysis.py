@@ -6,8 +6,8 @@ No LLM required — the optional narrative is added separately in narrative.py.
 """
 from __future__ import annotations
 
-from phase3.resume_quality import analyze_resume_quality
-from phase3.schemas import (
+from app.career_intelligence.resume_quality import analyze_resume_quality
+from app.career_intelligence.schemas import (
     BenchmarkMatchInput,
     CandidateSnapshot,
     DetailedGapReport,
